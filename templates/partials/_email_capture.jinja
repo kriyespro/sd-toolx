@@ -1,0 +1,17 @@
+{% if show_email_capture %}
+<div class="mt-6 rounded-xl border border-indigo-300 bg-indigo-50 dark:bg-indigo-950/30 dark:border-indigo-800 p-6">
+  <p class="font-semibold text-indigo-900 dark:text-indigo-100">Get 7 days Pro free</p>
+  <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Enter your email — no credit card required.</p>
+  <form class="mt-4 flex flex-col sm:flex-row gap-2"
+        hx-post="{{ url('growth:email-capture') }}"
+        hx-target="#email-capture-slot"
+        hx-swap="innerHTML">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ get_csrf(request) }}">
+    <input type="email" name="email" required placeholder="you@example.com"
+      class="flex-1 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 text-sm">
+    <button type="submit" class="bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 whitespace-nowrap">
+      Start free trial
+    </button>
+  </form>
+</div>
+{% endif %}

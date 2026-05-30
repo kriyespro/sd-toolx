@@ -1,0 +1,22 @@
+{% extends "pages/tools/_tool_base.jinja" %}
+{% block tool_form %}
+<div class="space-y-3">
+  <div>
+    <label class="block text-sm font-medium">Text / Number</label>
+    <input type="text" name="text" placeholder="Enter barcode content…"
+      class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 mt-1">
+  </div>
+  <div>
+    <label class="block text-sm font-medium">Barcode type</label>
+    <select name="barcode_type" class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 mt-1">
+      <option value="code128" selected>Code 128 (universal)</option>
+      <option value="ean13">EAN-13 (retail products)</option>
+      <option value="ean8">EAN-8</option>
+      <option value="code39">Code 39</option>
+      <option value="isbn13">ISBN-13</option>
+    </select>
+    <p class="text-xs text-gray-500 mt-1">EAN-13 requires exactly 13 digits. ISBN-13 requires exactly 13 digits.</p>
+  </div>
+</div>
+{% endblock %}
+{% block submit_label %}Generate Barcode{% endblock %}

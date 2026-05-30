@@ -1,0 +1,3 @@
+email: test@sdtoolx.com
+password: Test@1234
+plan: Pro (7-day trial)

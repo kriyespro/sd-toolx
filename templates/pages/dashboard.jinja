@@ -1,0 +1,68 @@
+{% extends "layouts/dashboard.jinja" %}
+{% block title %}Dashboard — {{ site_name }}{% endblock %}
+{% block dashboard_content %}
+<h1 class="text-2xl font-bold mb-6">Dashboard</h1>
+
+{% if profile.is_on_trial %}
+<div class="mb-6 rounded-xl border border-indigo-300 bg-indigo-50 dark:bg-indigo-950/40 dark:border-indigo-800 p-4 text-sm">
+  <strong>Pro trial active</strong> — ends {{ profile.trial_ends_at|date('M j, Y') }}.
+  <a href="{{ url('billing:pricing') }}" class="text-indigo-600 font-medium ml-1">Upgrade now</a>
+</div>
+{% endif %}
+
+<div class="grid md:grid-cols-2 gap-6 mb-8">
+  <div class="border border-gray-200 dark:border-gray-800 rounded-xl p-6">
+    <p class="text-sm text-gray-500">Operations today</p>
+    <p class="text-3xl font-bold mt-1">{{ ops_used }} / {{ ops_limit }}</p>
+    <div class="mt-3 h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+      {% if ops_limit != 'Unlimited' %}
+      <div class="h-full bg-indigo-600 rounded-full" style="width: {{ usage_pct }}%"></div>
+      {% else %}
+      <div class="h-full bg-indigo-600 rounded-full w-full"></div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="border border-gray-200 dark:border-gray-800 rounded-xl p-6">
+    <p class="text-sm text-gray-500">Current plan</p>
+    <p class="text-xl font-bold mt-1">{% if profile.plan %}{{ profile.plan.name }}{% else %}Free{% endif %}</p>
+    {% if subscription and subscription.current_period_end %}
+    <p class="text-xs text-gray-500 mt-1">Renews {{ subscription.current_period_end|date('M j, Y') }}</p>
+    {% endif %}
+    <div class="mt-4 flex flex-wrap gap-2">
+      <a href="{{ url('billing:pricing') }}" class="text-sm bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">Upgrade</a>
+      {% if subscription and subscription.status == 'active' and profile.plan and profile.plan.slug != 'free' %}
+      <form method="post" action="{{ url('billing:cancel') }}" onsubmit="return confirm('Cancel subscription?')">
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ get_csrf(request) }}">
+        <button type="submit" class="text-sm border border-gray-300 dark:border-gray-600 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">Cancel plan</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="border border-gray-200 dark:border-gray-800 rounded-xl p-6 mb-8">
+  <h2 class="text-lg font-semibold mb-2">Refer friends</h2>
+  <p class="text-sm text-gray-500 mb-3">Share your link — they get 3 days free, you get 7 days when they upgrade.</p>
+  <code class="block text-sm bg-gray-100 dark:bg-gray-900 px-3 py-2 rounded-lg break-all">{{ request.build_absolute_uri(url('join-referral', args=[profile.referral_code])) }}</code>
+  <p class="text-xs text-gray-500 mt-2">Referrals: {{ profile.referrals_sent.count() }}</p>
+</div>
+
+<h2 class="text-lg font-semibold mb-4">Recent files</h2>
+{% if recent_jobs %}
+<ul class="space-y-2">
+  {% for job in recent_jobs %}
+  <li class="flex justify-between items-center border border-gray-200 dark:border-gray-800 rounded-lg px-4 py-3 text-sm">
+    <span>{{ job.tool_slug }} · {{ job.status }}</span>
+    <span class="flex items-center gap-3 text-gray-500">
+      {{ job.created_at|date('M j, H:i') }}
+      {% if job.status == 'done' %}
+      <a href="{{ url('tools:job-download', args=[job.id]) }}" class="text-indigo-600 hover:underline">Download</a>
+      {% endif %}
+    </span>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="text-gray-500 text-sm">No files processed yet. <a href="{{ url('tools:index') }}" class="text-indigo-600">Try a tool</a>.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,17 @@
+{% if job and job.status == 'done' %}
+<div class="flex flex-wrap gap-3 mt-4 pt-4 border-t border-gray-200 dark:border-gray-800">
+  {% set share_text = "I just used " ~ tool.name ~ " on SD-Toolx — free PDF tools for India!" %}
+  {% if job.compression_stat.saved_pct is defined %}
+    {% set share_text = "I compressed a PDF by " ~ job.compression_stat.saved_pct ~ "% using SD-Toolx!" %}
+  {% endif %}
+  <a href="https://wa.me/?text={{ share_text|urlencode }}%20{{ request.build_absolute_uri()|urlencode }}"
+     target="_blank" rel="noopener"
+     class="inline-flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700">
+    Share on WhatsApp
+  </a>
+  <button type="button" onclick="navigator.clipboard.writeText(window.location.href)"
+    class="text-sm px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800">
+    Copy link
+  </button>
+</div>
+{% endif %}

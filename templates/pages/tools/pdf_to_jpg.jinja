@@ -1,0 +1,13 @@
+{% extends "pages/tools/_tool_base.jinja" %}
+{% block tool_form %}
+{% set accept = ".pdf" %}
+{% include "components/upload_zone.jinja" %}
+<label class="block text-sm font-medium mt-4">DPI</label>
+<select name="dpi" class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900">
+  <option value="72">72 (small)</option>
+  <option value="150" selected>150 (standard)</option>
+  <option value="300">300 (print)</option>
+</select>
+<p class="text-xs text-gray-500 mt-2">Free: first page only. Pro: all pages.</p>
+{% endblock %}
+{% block submit_label %}Convert to JPG{% endblock %}

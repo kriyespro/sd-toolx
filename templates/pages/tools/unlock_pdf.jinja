@@ -1,0 +1,11 @@
+{% extends "pages/tools/_tool_base.jinja" %}
+{% block tool_form %}
+{% set accept = ".pdf" %}
+{% include "components/upload_zone.jinja" %}
+<label class="block text-sm font-medium mt-4">Current PDF password</label>
+<input type="password" name="password" required minlength="1"
+  class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900"
+  autocomplete="off">
+<p class="text-xs text-gray-500 mt-2">Only unlock PDFs you own or are allowed to edit.</p>
+{% endblock %}
+{% block submit_label %}Unlock PDF{% endblock %}

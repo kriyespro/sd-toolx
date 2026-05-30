@@ -1,0 +1,33 @@
+{% extends "pages/tools/_tool_base.jinja" %}
+{% block tool_form %}
+{% set accept = ".jpg,.jpeg,.png,.webp,.bmp" %}
+{% include "components/upload_zone.jinja" %}
+<div class="mt-4 space-y-3">
+  <div>
+    <label class="block text-sm font-medium">Watermark text</label>
+    <input type="text" name="text" value="SD-Toolx"
+      class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 mt-1">
+  </div>
+  <div class="grid grid-cols-2 gap-3">
+    <div>
+      <label class="block text-sm font-medium">Opacity</label>
+      <select name="opacity" class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 mt-1">
+        <option value="0.25">Light (25%)</option>
+        <option value="0.50" selected>Medium (50%)</option>
+        <option value="0.80">Dark (80%)</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-sm font-medium">Position</label>
+      <select name="position" class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 mt-1">
+        <option value="center" selected>Center</option>
+        <option value="top-left">Top Left</option>
+        <option value="top-right">Top Right</option>
+        <option value="bottom-left">Bottom Left</option>
+        <option value="bottom-right">Bottom Right</option>
+      </select>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block submit_label %}Add Watermark{% endblock %}

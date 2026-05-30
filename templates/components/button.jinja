@@ -1,0 +1,13 @@
+{% macro button(label, href=None, type='button', variant='primary', extra_class='') %}
+  {% set base = 'inline-flex items-center justify-center px-5 py-2.5 rounded-lg font-medium text-sm transition ' %}
+  {% set variants = {
+    'primary': 'bg-indigo-600 text-white hover:bg-indigo-700',
+    'secondary': 'border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800',
+    'ghost': 'text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950'
+  } %}
+  {% if href %}
+    <a href="{{ href }}" class="{{ base }}{{ variants.get(variant, variants.primary) }} {{ extra_class }}">{{ label }}</a>
+  {% else %}
+    <button type="{{ type }}" class="{{ base }}{{ variants.get(variant, variants.primary) }} {{ extra_class }}">{{ label }}</button>
+  {% endif %}
+{% endmacro %}

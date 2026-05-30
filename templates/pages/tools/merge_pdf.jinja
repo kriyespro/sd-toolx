@@ -1,0 +1,16 @@
+{% extends "pages/tools/_tool_base.jinja" %}
+{% block processing_text %}Merging and compressing…{% endblock %}
+{% block tool_form %}
+{% set accept = ".pdf" %}
+{% set multiple = true %}
+{% set name = "files" %}
+{% include "components/upload_zone.jinja" %}
+<p class="text-xs text-gray-500">Upload 2 or more PDFs. Files are merged in upload order, then compressed.</p>
+<label class="block text-sm font-medium mt-4">Compression after merge</label>
+<select name="quality" class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900">
+  <option value="high">High quality</option>
+  <option value="medium" selected>Balanced</option>
+  <option value="low">Maximum compression</option>
+</select>
+{% endblock %}
+{% block submit_label %}Merge &amp; Compress{% endblock %}

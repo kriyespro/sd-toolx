@@ -1,0 +1,7 @@
+{% extends "pages/tools/_tool_base.jinja" %}
+{% block tool_form %}
+{% set accept = ".pdf" %}
+{% include "components/upload_zone.jinja" %}
+<p class="text-xs text-gray-500 mt-2">Each PDF page becomes a slide. Best for presentation-style PDFs.</p>
+{% endblock %}
+{% block submit_label %}Convert to PowerPoint{% endblock %}

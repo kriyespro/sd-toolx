@@ -1,0 +1,17 @@
+{% extends "pages/tools/_tool_base.jinja" %}
+{% block tool_form %}
+<label class="block text-sm font-medium">Type</label>
+<select name="qr_type" class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 mb-4">
+  <option value="url">URL</option>
+  <option value="text">Plain text</option>
+  <option value="upi">UPI ID</option>
+  <option value="whatsapp">WhatsApp number</option>
+</select>
+<label class="block text-sm font-medium">Content</label>
+<input type="text" name="text" required placeholder="https://example.com or UPI ID"
+  class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900">
+<label class="block text-sm font-medium mt-4">Size</label>
+<input type="number" name="size" value="10" min="5" max="20"
+  class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900">
+{% endblock %}
+{% block submit_label %}Generate QR code{% endblock %}

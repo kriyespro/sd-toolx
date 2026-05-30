@@ -1,0 +1,40 @@
+{% extends "pages/tools/_tool_base.jinja" %}
+{% block tool_form %}
+{% set accept = ".jpg,.jpeg,.png,.webp,.bmp,.gif" %}
+{% include "components/upload_zone.jinja" %}
+<div class="mt-4 space-y-3" x-data="{mode:'pixels'}">
+  <div class="flex gap-3">
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="radio" name="mode" value="pixels" x-model="mode" class="accent-indigo-600"> Pixels
+    </label>
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="radio" name="mode" value="percent" x-model="mode" class="accent-indigo-600"> Percentage
+    </label>
+  </div>
+  <div x-show="mode==='pixels'" class="grid grid-cols-2 gap-3">
+    <div>
+      <label class="block text-sm font-medium">Width (px)</label>
+      <input type="number" name="width" min="1" max="8000" placeholder="e.g. 1920"
+        class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 mt-1">
+    </div>
+    <div>
+      <label class="block text-sm font-medium">Height (px)</label>
+      <input type="number" name="height" min="1" max="8000" placeholder="e.g. 1080"
+        class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 mt-1">
+    </div>
+    <div class="col-span-2">
+      <label class="flex items-center gap-2 cursor-pointer text-sm">
+        <input type="checkbox" name="lock_ratio" value="true" checked class="accent-indigo-600">
+        Lock aspect ratio
+      </label>
+    </div>
+  </div>
+  <div x-show="mode==='percent'">
+    <label class="block text-sm font-medium">Scale percentage</label>
+    <input type="number" name="percent" min="1" max="500" value="50"
+      class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 mt-1">
+    <p class="text-xs text-gray-500 mt-1">50 = half size, 200 = double size</p>
+  </div>
+</div>
+{% endblock %}
+{% block submit_label %}Resize Image{% endblock %}

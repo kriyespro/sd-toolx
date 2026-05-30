@@ -1,0 +1,29 @@
+{% extends "pages/tools/_tool_base.jinja" %}
+{% block tool_form %}
+{% set accept = ".jpg,.jpeg,.png,.webp" %}
+{% include "components/upload_zone.jinja" %}
+<div class="mt-4 grid grid-cols-2 gap-3">
+  <div>
+    <label class="block text-sm font-medium">Size preset</label>
+    <select name="preset" class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 mt-1">
+      <option value="passport_india">Indian Passport (35×45mm)</option>
+      <option value="aadhaar">Aadhaar Card</option>
+      <option value="pan">PAN Card</option>
+      <option value="visa_us">US Visa (2×2 inch)</option>
+      <option value="visa_uk">UK Visa</option>
+      <option value="linkedin">LinkedIn (400×400px)</option>
+    </select>
+  </div>
+  <div>
+    <label class="block text-sm font-medium">Background color</label>
+    <select name="bg_color" class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 mt-1">
+      <option value="white" selected>White</option>
+      <option value="#003087">Blue (US Visa)</option>
+      <option value="#FF0000">Red</option>
+      <option value="lightgray">Light Grey</option>
+    </select>
+  </div>
+</div>
+<p class="text-xs text-gray-500 mt-2">Photo is automatically cropped and resized. Best results with a clear face photo.</p>
+{% endblock %}
+{% block submit_label %}Generate ID Photo{% endblock %}

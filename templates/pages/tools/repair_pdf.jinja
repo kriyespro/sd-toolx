@@ -1,0 +1,7 @@
+{% extends "pages/tools/_tool_base.jinja" %}
+{% block tool_form %}
+{% set accept = ".pdf" %}
+{% include "components/upload_zone.jinja" %}
+<p class="text-xs text-gray-500 mt-2">Attempts to recover and re-save a corrupt or broken PDF. Works best with partially damaged files.</p>
+{% endblock %}
+{% block submit_label %}Repair PDF{% endblock %}

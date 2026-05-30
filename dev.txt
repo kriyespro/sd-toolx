@@ -1,0 +1,991 @@
+================================================================
+SD-TOOLX — PHASE-BY-PHASE DEVELOPMENT PLAN (v2)
+================================================================
+Stack: Django 5 | Python 3.12 | Celery + Redis | Cloudflare R2
+       HTMX | Alpine.js | Tailwind CSS | Jinja2 | PostgreSQL
+Based on: ba.txt + better.txt (Final Product Roadmap)
+Last updated: May 16, 2026
+================================================================
+
+PRICING (from better.txt — updated):
+  FREE          → 5 ops/day | 20MB | 3 files | Core tools | No watermark
+  BASIC  ₹99/mo → 20 ops/day | 50MB | 5 files | All PDF tools
+  PRO   ₹249/mo → Unlimited | 200MB | Batch | AI tools | E-Sign
+  BIZ   ₹799/mo → API | 1GB | Team 5 seats | Priority queue | White-label
+  Annual: 40% off all plans
+
+TOOL COUNT: 44 tools across 8 modules (see better.txt for full list)
+
+================================================================
+PHASE 0 — PROJECT BOOTSTRAP
+Day 1 | ~5 hours
+Goal: Fully working Django skeleton. Everything plugged in. Nothing broken.
+================================================================
+
+[ ] 0.1  Django project init
+         django-admin startproject core .
+         Apps to create: users, dashboard, billing, blog
+         Feature apps: features/tools, features/api, features/esign
+
+[ ] 0.2  Settings split
+         core/settings/base.py   ← shared config
+         core/settings/dev.py    ← SQLite, DEBUG=True, local Redis
+         core/settings/prod.py   ← PostgreSQL, Cloudflare R2, DEBUG=False
+         .env file with all secrets
+
+[ ] 0.3  Jinja2 template engine
+         core/jinja2.py          ← custom environment (csrf, url, static)
+         Jinja2 = PRIMARY for all frontend (.jinja extension)
+         Django Templates = ONLY for /sd/ admin
+         templates/base.jinja    ← global base layout
+         templates/layouts/
+           marketing.jinja       ← public pages
+           dashboard.jinja       ← logged-in pages
+           tool.jinja            ← tool page base
+
+[ ] 0.4  Tailwind CSS
+         CDN for dev
+         Compiled output for prod (tailwind CLI)
+         Dark mode: class strategy (class="dark" on <html>)
+         Add toggle logic in base.jinja (Alpine.js + localStorage)
+
+[ ] 0.5  PWA setup
+         static/manifest.json    ← name, icons, theme_color
+         static/sw.js            ← service worker (cache UI shell)
+         <link rel="manifest"> in base.jinja
+         Makes app installable on Android/iPhone homescreen
+
+[ ] 0.6  Custom User model (users/)
+         AbstractBaseUser or AbstractUser (email as username)
+         Profile model:
+           plan (FK to Plan)
+           api_key (UUID, auto-generated)
+           referral_code (6-char, auto-generated)
+           referred_by (FK self, nullable)
+           trial_ends_at (DateTime, nullable)
+           ops_today (int, reset daily via Celery beat)
+         Login / Register / Logout views
+         Email-based login (no username)
+
+[ ] 0.7  Google OAuth (django-allauth)
+         "Continue with Google" on login + register page
+         Auto-creates Profile on first login
+
+[ ] 0.8  Celery + Redis
+         core/celery.py
+         Two queues:
+           default     ← free-tier jobs
+           priority    ← Pro/Business jobs (faster worker)
+         Celery Beat for scheduled tasks (daily ops reset)
+
+[ ] 0.9  Cloudflare R2 storage
+         django-storages + boto3
+         MEDIA_URL → R2 bucket
+         Files auto-expire: 2 hours (lifecycle rule in R2)
+         Signed URLs for private file downloads
+
+[ ] 0.10 Admin panel (/sd/)
+         Register: User, Profile, Plan, Subscription, ToolJob, Post
+         Install jazzmin for better admin UI
+
+[ ] 0.11 durga.py dev runner
+         Starts: Django runserver + Celery worker + Celery beat
+         Clears cache on start
+         Prints URL + test credentials
+
+[ ] 0.12 requirements.txt (complete)
+         # Core
+         django>=5.0
+         django-jinja
+         django-allauth
+         environs[django]
+         whitenoise
+         gunicorn
+
+         # Database
+         psycopg2-binary
+
+         # Cache / Queue
+         celery[redis]
+         redis
+         django-redis
+
+         # Storage
+         django-storages
+         boto3
+
+         # PDF Processing
+         pymupdf              ← PyMuPDF (fitz) — core PDF engine
+         ghostscript          ← compression
+         python-docx          ← Word files
+         openpyxl             ← Excel files
+         python-pptx          ← PowerPoint files
+
+         # Image Processing
+         pillow               ← image resize, convert, compress
+         pyheif               ← HEIC → JPG (iPhone photos)
+
+         # OCR
+         pytesseract          ← OCR (requires Tesseract binary)
+
+         # AI
+         openai               ← GPT-4o mini for AI tools
+         tiktoken
+
+         # Payments
+         razorpay
+
+         # Utilities
+         qrcode[pil]          ← QR code generator
+         shortuuid            ← short unique IDs
+         sentry-sdk           ← error tracking (prod)
+
+[ ] 0.13 test_user.txt
+         email: test@sdtoolx.com
+         password: Test@1234
+         plan: Pro (trial)
+
+Deliverable: http://localhost:8000 → homepage renders.
+             /sd/ → admin panel works.
+             Celery worker starts without errors.
+
+================================================================
+PHASE 1 — CORE TOOL ENGINE + MVP TOOLS (Priority 1)
+Day 2–5 | ~18 hours
+Goal: 10 tools live. Dark mode. WhatsApp share. Real preview.
+      This is the public launch version.
+================================================================
+
+[ ] 1.1  Tool engine models (features/tools/models.py)
+         ToolJob:
+           user (FK, nullable — anonymous allowed)
+           session_key (for anonymous users)
+           tool_slug (CharField)
+           status (pending/processing/done/failed)
+           input_files (JSONField — list of R2 keys)
+           output_file (R2 key)
+           output_url (signed URL, cached)
+           compression_stat (JSONField — e.g. {"saved_pct": 74})
+           created_at, expires_at (2 hours)
+
+         UsageLog:
+           user (FK)
+           date (DateField)
+           op_count (int)
+           ← reset daily via Celery beat task
+
+[ ] 1.2  File handler service (features/tools/services/file_handler.py)
+         upload_to_r2(file, job_id) → R2 key
+         validate_file(file, allowed_types, max_mb) → raises if invalid
+         check_free_limit(user/session) → raises UpgradeRequired
+         get_signed_url(r2_key, expires=3600) → URL
+         delete_r2_file(r2_key)
+
+[ ] 1.3  Base Celery task pattern (features/tools/tasks.py)
+         @app.task(queue='default')
+         def process_tool(job_id):
+             job = ToolJob.objects.get(id=job_id)
+             job.status = 'processing'; job.save()
+             try:
+                 result_key = services.<tool>.run(job)
+                 job.output_file = result_key
+                 job.status = 'done'
+             except Exception as e:
+                 job.status = 'failed'
+             job.save()
+
+[ ] 1.4  HTMX polling pattern (partials/_job_status.jinja)
+         hx-get="/tools/job/{{ job.id }}/status/"
+         hx-trigger="every 800ms"
+         hx-swap="outerHTML"
+         → Shows: spinner → progress % → download button
+         → Stops polling when status = done/failed
+
+[ ] 1.5  Real-time preview panel (partials/_preview.jinja)
+         After job done: show thumbnail of output page 1
+         "Is this what you wanted?" + Download + Process Another
+         PyMuPDF renders page 1 as 200px thumbnail → R2
+
+[ ] 1.6  Freemium limit middleware
+         Checks UsageLog before every tool submit
+         If at limit → HTMX returns _upgrade_prompt.jinja
+         Never shows the wall BEFORE the user tries (not intrusive)
+
+[ ] 1.7  24-hour anonymous file history (cookie-based)
+         session_key stored in cookie
+         ToolJob filtered by session_key
+         partials/_recent_files.jinja on homepage
+
+[ ] 1.8  WhatsApp share button (partials/_share.jinja)
+         Shown on every result page
+         "Share this tool on WhatsApp" → wa.me link
+         Pre-filled: "I just compressed a PDF by 74% using SD-Toolx 🔥"
+         Also: Copy link to this tool
+
+[ ] 1.9  Dark mode toggle
+         components/dark_toggle.jinja
+         Alpine.js: $store.darkMode (persisted in localStorage)
+         Toggles class="dark" on <html>
+         Tailwind dark: prefix for all colors
+
+  ── MVP TOOLS (Priority 1 from better.txt) ──────────────────
+
+[ ] 1.10 TOOL: Compress PDF
+         Backend: Ghostscript subprocess (3 quality levels)
+         Show: original size → compressed size → % saved
+         Free: 20MB | Pro: 200MB
+         URL: /tools/compress-pdf/
+
+[ ] 1.11 TOOL: Merge PDF
+         Backend: PyMuPDF
+         UI: drag-to-reorder file list before merge (Alpine.js + Sortable.js CDN)
+         Thumbnail preview strip of each file
+         Free: 3 files | Pro: unlimited
+         URL: /tools/merge-pdf/
+
+[ ] 1.12 TOOL: Split PDF
+         UI: visual page grid (click to select pages to extract)
+         Options: by range, every N pages, all pages to separate files
+         Free: first 5 pages | Pro: full document
+         URL: /tools/split-pdf/
+
+[ ] 1.13 TOOL: Rotate PDF
+         Per-page rotation (90° steps) with visual thumbnail grid
+         FREE always (no limit — easy win vs iLovePDF)
+         URL: /tools/rotate-pdf/
+
+[ ] 1.14 TOOL: PDF → JPG / PNG
+         Backend: PyMuPDF page renderer
+         DPI selector: 72 / 150 / 300
+         Free: first page only | Pro: all pages + ZIP
+         URL: /tools/pdf-to-jpg/
+
+[ ] 1.15 TOOL: JPG / PNG / WebP → PDF
+         Backend: Pillow + PyMuPDF
+         Multi-image upload, drag to reorder
+         Page size selector: A4, Letter, fit-to-image
+         Free: 3 images | Pro: unlimited
+         URL: /tools/img-to-pdf/
+
+[ ] 1.16 TOOL: Word (.docx) → PDF
+         Backend: LibreOffice headless (subprocess)
+         FREE for all users (high traffic driver)
+         URL: /tools/word-to-pdf/
+
+[ ] 1.17 TOOL: Compress Image
+         Backend: Pillow (quality slider 10–90)
+         Supports: JPG, PNG, WebP, GIF
+         Show before/after size + live quality preview
+         Free: 5MB | Pro: 50MB
+         URL: /tools/compress-image/
+
+[ ] 1.18 TOOL: Sign PDF (basic e-signature)
+         Draw signature (canvas) OR type name in cursive font
+         Place on any page, any position (drag-drop)
+         Free: 3 docs/month | Pro: unlimited
+         Backend: PyMuPDF annotation layer
+         URL: /tools/sign-pdf/
+         WHY: iLovePDF charges ₹800+/mo. We give it free. Users will switch.
+
+[ ] 1.19 TOOL: QR Code Generator
+         Types: URL, plain text, WhatsApp, UPI, WiFi
+         Colors + size selector
+         Free: standard black/white | Pro: custom colors + logo
+         Backend: qrcode[pil] library (no external API)
+         URL: /tools/qr-generator/
+
+[ ] 1.20 Homepage (pages/home.jinja)
+         Hero: "44 Free Tools. No Signup. No Ads."
+         Tool grid: category filter via HTMX (PDF / Image / AI / Utility)
+         Social proof counter: "X files processed by Y users"
+         Dark mode toggle in navbar
+         No popup modals
+
+[ ] 1.21 Tool page template base (pages/tools/_tool_base.jinja)
+         Hero section: tool name + 1-line description
+         Upload zone (drag-drop + click): components/upload_zone.jinja
+         Progress + result area (HTMX target)
+         "How it works" (3 steps)
+         FAQ section (JSON-LD FAQPage schema)
+         Related tools grid (3 tools)
+
+Deliverable: 10 tools live. Dark mode works. Preview shows. WhatsApp share on every result.
+
+================================================================
+PHASE 2 — SEO FOUNDATION + UX POLISH
+Day 6–9 | ~14 hours
+Goal: Every tool page Google-indexable. Site feels premium vs iLovePDF.
+================================================================
+
+[ ] 2.1  SEO data registry (features/tools/seo_data.py)
+         TOOL_SEO = {
+           'compress-pdf': {
+             'title': 'Compress PDF Online Free — Reduce PDF Size Instantly',
+             'description': '...',
+             'h1': '...', 'h2': '...',
+             'faq': [{'q': '...', 'a': '...'}, ...]
+           },
+           ...
+         }
+         44 entries. One per tool.
+
+[ ] 2.2  Sitemap (django.contrib.sitemaps)
+         /sitemap.xml → all tool pages + blog posts
+         Priority: 1.0 for tool pages, 0.8 for blog
+
+[ ] 2.3  robots.txt
+         Allow all tools pages
+         Disallow /sd/ /api/ /dashboard/
+
+[ ] 2.4  Structured data (JSON-LD in tool base template)
+         SoftwareApplication schema (every tool page)
+         FAQPage schema (from seo_data.py faq list)
+         BreadcrumbList schema
+
+[ ] 2.5  Canonical URLs on all pages
+
+[ ] 2.6  Blog app (blog/)
+         models.py: Post(title, slug, content_md, meta_title,
+                         meta_desc, published_at, author)
+         Views: list + detail
+         Markdown rendering (mistune or django-markdownify)
+         URL: /blog/ + /blog/<slug>/
+         5 seed posts at launch:
+           "How to Compress PDF on Mobile India"
+           "Best Free PDF Tools 2026 (No Signup)"
+           "How to Convert Word to PDF Free"
+           "Merge PDF Files Online in 3 Steps"
+           "Remove Background from Photo Free Online India"
+
+[ ] 2.7  Google Drive import button
+         OAuth2 flow → pick file → upload to R2
+         Shown as secondary upload option on tool pages
+         Pro feature for save-back-to-Drive
+
+[ ] 2.8  HEIC → JPG tool (iPhone photos)
+         Backend: pyheif + Pillow
+         FREE always
+         URL: /tools/heic-to-jpg/
+
+[ ] 2.9  Resize Image tool
+         Pixels or percentage resize
+         Lock aspect ratio (Alpine.js toggle)
+         Preset: 1080p, 720p, thumbnail, passport photo
+         URL: /tools/resize-image/
+
+[ ] 2.10 Convert Image Format tool
+         JPG ↔ PNG ↔ WebP ↔ BMP ↔ GIF
+         Batch convert (Pro)
+         URL: /tools/convert-image/
+
+[ ] 2.11 Keyboard shortcuts (global)
+         Ctrl+U = open file picker on current tool
+         Ctrl+D = trigger download if result ready
+         Ctrl+R = reset / process another
+         Shown as tooltip in footer of tool page
+
+[ ] 2.12 Accessibility pass
+         All interactive elements: aria-label
+         Color contrast: WCAG 2.1 AA minimum
+         Focus rings visible
+
+[ ] 2.13 Performance targets
+         Lighthouse score ≥ 90 on tool pages
+         Tailwind purge (prod): CSS < 15KB
+         No blocking JS (HTMX + Alpine deferred)
+
+Deliverable: All 13 tools SEO-optimized. Blog live. Google Search Console connected.
+
+================================================================
+PHASE 3 — BILLING & SUBSCRIPTIONS
+Day 10–13 | ~12 hours
+Goal: Razorpay working. First rupee collected.
+================================================================
+
+[ ] 3.1  Plan model (billing/models.py)
+         Plan:
+           name, slug
+           price_monthly, price_yearly
+           ops_per_day (5 / 20 / -1 / -1)
+           max_file_mb (20 / 50 / 200 / 1024)
+           max_files (3 / 5 / -1 / -1)
+           has_batch (bool)
+           has_ai (bool)
+           has_api (bool)
+           has_esign_unlimited (bool)
+           has_team (bool)
+           team_seats (int)
+
+         Subscription:
+           user (OneToOne)
+           plan (FK)
+           razorpay_subscription_id
+           status (active/cancelled/past_due/trialing)
+           current_period_end
+           cancelled_at
+
+         Invoice:
+           subscription (FK)
+           razorpay_payment_id
+           amount_paise
+           paid_at
+           receipt_url
+
+[ ] 3.2  Razorpay service (billing/services/razorpay_service.py)
+         create_subscription(user, plan, is_annual)
+         cancel_subscription(subscription)
+         get_payment_link(amount, description) ← for one-off purchases
+         verify_webhook_signature(payload, signature)
+
+[ ] 3.3  Pricing page (/pricing/)
+         3 columns: Basic / Pro / Business
+         4th: Free (leftmost)
+         Monthly / Yearly toggle (Alpine.js, shows 40% saved badge)
+         "Most Popular" on Pro
+         Feature comparison table below cards
+         CTA per plan → Razorpay checkout
+
+[ ] 3.4  Razorpay checkout flow
+         JS: Razorpay.open() on "Upgrade" click
+         On success → POST to /billing/confirm/ with payment_id
+         Activate subscription → redirect to dashboard
+
+[ ] 3.5  Webhook handler (/billing/webhook/razorpay/)
+         payment.captured     → mark Invoice paid
+         subscription.activated → set Subscription.status = active
+         subscription.cancelled → downgrade to Free
+         subscription.halted   → email user, pause access
+         payment.failed        → email user
+
+[ ] 3.6  Upgrade prompt system (HTMX-driven)
+         partials/_upgrade_prompt.jinja
+         Shown ONLY when free limit is hit (not before)
+         Content: "You've used your 5 free ops today. Upgrade to Pro for ₹249/mo."
+         CTA: "See Plans" → /pricing/
+         Design: inline banner (no popup modal)
+
+[ ] 3.7  Trial system
+         Profile.trial_ends_at set on email confirm (7 days)
+         No credit card needed
+         Trial treated as Pro plan in permission checks
+         Day 5 email: "Your trial ends in 2 days"
+         Day 7 email: "Trial ended — here's 10% off Pro"
+
+[ ] 3.8  User dashboard (/dashboard/)
+         Current plan + usage bar (ops today)
+         File history: last 10 ToolJobs (re-download button)
+         Subscription management (cancel, upgrade)
+         Trial countdown if on trial
+
+[ ] 3.9  Billing email system (django-anymail or SMTP)
+         welcome.html       ← on signup
+         trial_start.html   ← 7-day trial begins
+         trial_ending.html  ← day 5 of trial
+         payment_success.html
+         payment_failed.html
+         limit_80pct.html   ← "You're at 80% of daily limit"
+         upgrade_nudge.html ← 3 days after limit hit with no upgrade
+         cancellation.html  ← "Before you go..." with discount offer
+
+[ ] 3.10 Seed plans + admin price management
+
+Deliverable: First paid subscriber. Razorpay webhook confirmed in prod.
+
+================================================================
+PHASE 4 — GROWTH FEATURES + AI TOOLS (Priority 2)
+Day 14–20 | ~18 hours
+Goal: Viral loops live. AI tools live. Remove Background = viral hook.
+================================================================
+
+  ── PRIORITY 2 TOOLS (from better.txt) ─────────────────────
+
+[ ] 4.1  TOOL: PDF → Word (Pro)
+         Backend: PyMuPDF text extraction + python-docx
+         Free: 1-page preview with "See full output → Upgrade"
+         URL: /tools/pdf-to-word/
+
+[ ] 4.2  TOOL: Reorder PDF Pages
+         Visual thumbnail grid (all pages)
+         Drag-to-reorder (Alpine.js + Sortable.js)
+         Select + delete pages in same UI
+         URL: /tools/reorder-pdf/
+
+[ ] 4.3  TOOL: Delete PDF Pages
+         Click to toggle-select pages from thumbnail grid
+         Download new PDF without selected pages
+         URL: /tools/delete-pdf-pages/
+
+[ ] 4.4  TOOL: Protect PDF (add password)
+         AES-256 via PyMuPDF
+         URL: /tools/protect-pdf/
+
+[ ] 4.5  TOOL: Unlock PDF (remove password)
+         Requires user to provide current password (legal)
+         URL: /tools/unlock-pdf/
+
+[ ] 4.6  TOOL: Remove Background (AI) — PRO
+         Backend: rembg library (U2Net model, runs on CPU)
+         No external API needed. Runs on server.
+         Output: PNG with transparent background
+         This is the viral hit. Standalone. Tweet-worthy.
+         URL: /tools/remove-background/
+
+[ ] 4.7  TOOL: AI PDF Summarizer — PRO
+         Backend: OpenAI GPT-4o mini
+         PyMuPDF extracts text → sent to OpenAI
+         Output: 5 bullet points + 1-para summary
+         Free: first 500 words of PDF | Pro: full document
+         URL: /tools/ai-summarize-pdf/
+
+  ── GROWTH FEATURES ─────────────────────────────────────────
+
+[ ] 4.8  Email capture (lead magnet)
+         After 2nd tool use by anonymous user:
+         Inline bar (not popup): "Get 7 days Pro free — enter email"
+         On confirm → activate trial → auto-login
+         HTMX form submit → partials/_trial_activated.jinja
+
+[ ] 4.9  Referral program
+         Profile.referral_code (auto, 6 chars)
+         Share URL: sdtoolx.com/join/REFCODE
+         Referee: gets 3 days free on signup
+         Referrer: gets 7 days free when referee pays
+         ReferralLog model: (referrer, referee, reward_given)
+         Dashboard: your referral link + count of referrals
+
+[ ] 4.10 Social proof counter (homepage + tool pages)
+         ToolJob.objects.count() → cached in Redis (1 min TTL)
+         "12,847 files processed today by 4,231 users"
+         Auto-updates via HTMX every 60 seconds
+
+[ ] 4.11 WhatsApp-specific share on result
+         "Send this file via WhatsApp" (API deep link)
+         Opens WhatsApp with pre-filled message
+         India: this alone drives word-of-mouth
+
+[ ] 4.12 ProductHunt launch prep
+         /launch/ page (landing for PH traffic)
+         "We launched on ProductHunt today 🚀" banner
+         Collect upvote CTA without leaving site
+
+[ ] 4.13 Student discount flow
+         /student/ page
+         Enter college email (.edu or known Indian college domains)
+         Get 50% off Pro coupon code
+         RazorPay coupon applied at checkout
+
+Deliverable: Remove Background goes viral. AI Summarizer drives upgrades.
+             Referral loop live. Trial signups > 50/day.
+
+================================================================
+PHASE 5 — B2B API + ADVANCED TOOLS (Priority 3)
+Day 21–32 | ~22 hours
+Goal: B2B revenue stream open. All major tools live. AI chat ready.
+================================================================
+
+  ── PRIORITY 3 TOOLS ────────────────────────────────────────
+
+[ ] 5.1  TOOL: Chat with PDF — AI (PRO)
+         PyMuPDF extracts full text → chunked
+         Simple RAG: store chunks in Redis (no vector DB for MVP)
+         OpenAI GPT-4o mini: Q&A against chunks
+         UI: chat interface below upload (HTMX streaming response)
+         URL: /tools/chat-with-pdf/
+         This is the marquee AI tool. Gets press coverage.
+
+[ ] 5.2  TOOL: AI Translate PDF — PRO
+         Extract text via PyMuPDF
+         Translate via OpenAI (to Hindi, Tamil, Telugu, Bengali)
+         Rebuild PDF with translated text
+         URL: /tools/ai-translate-pdf/
+
+[ ] 5.3  TOOL: OCR — Scanned PDF / Image → Text (PRO)
+         Backend: pytesseract (Tesseract 5 binary)
+         Languages: English + Hindi (tesseract-ocr-hin)
+         Output: .txt file OR searchable PDF
+         URL: /tools/ocr/
+
+[ ] 5.4  TOOL: AI Extract Key Data — PRO
+         Upload invoice / contract / form
+         GPT extracts: names, dates, amounts, addresses
+         Output: structured table (rendered in HTML) + CSV download
+         URL: /tools/ai-extract-data/
+
+[ ] 5.5  TOOL: Excel → PDF
+         Backend: LibreOffice headless
+         URL: /tools/excel-to-pdf/
+
+[ ] 5.6  TOOL: PDF → Excel (Pro)
+         Table detection via PyMuPDF + openpyxl
+         URL: /tools/pdf-to-excel/
+
+[ ] 5.7  TOOL: PowerPoint → PDF
+         Backend: LibreOffice headless
+         URL: /tools/ppt-to-pdf/
+
+[ ] 5.8  TOOL: PDF → PowerPoint (Pro)
+         Slide-per-page extraction
+         URL: /tools/pdf-to-ppt/
+
+[ ] 5.9  TOOL: Watermark PDF (Pro)
+         Text or image watermark
+         Position: center/corner, opacity, rotation
+         URL: /tools/watermark-pdf/
+
+[ ] 5.10 TOOL: Fill PDF Form
+         Render interactive PDF form in browser (PDF.js viewer)
+         Fill fields → flatten → download
+         URL: /tools/fill-pdf-form/
+
+[ ] 5.11 TOOL: Request Signatures (Pro)
+         Upload PDF → add signature fields → enter recipient emails
+         Recipients get email link → draw/type signature → submit
+         Signee model: (job, email, token, signed_at)
+         URL: /tools/request-signature/
+
+[ ] 5.12 TOOL: Upscale Image AI (Pro)
+         Backend: realesrgan-ncnn-python (CPU, 2x/4x)
+         URL: /tools/upscale-image/
+
+[ ] 5.13 TOOL: Repair PDF
+         PyMuPDF can open + re-save corrupt PDFs
+         URL: /tools/repair-pdf/
+
+[ ] 5.14 TOOL: Compare PDF (Pro)
+         Side-by-side diff of two PDFs
+         Highlight changed pages/text
+         URL: /tools/compare-pdf/
+
+[ ] 5.15 TOOL: Redact PDF (Pro)
+         Black-box selection over text/areas
+         Permanent redaction (not just overlay)
+         URL: /tools/redact-pdf/
+
+[ ] 5.16 TOOL: Word Counter
+         Paste or upload .txt/.docx/.pdf
+         Count: words, characters, sentences, paragraphs, reading time
+         FREE, client-side for plain text
+         URL: /tools/word-counter/
+
+[ ] 5.17 TOOL: URL Shortener (branded sdtlx.in)
+         ShortLink model (code, target_url, click_count)
+         Custom code (Pro)
+         URL: /tools/url-shortener/
+
+  ── B2B API ─────────────────────────────────────────────────
+
+[ ] 5.18 REST API (features/api/)
+         Auth: API key in Authorization header
+         Endpoints:
+           POST /api/v1/jobs/        ← submit tool job
+           GET  /api/v1/jobs/<id>/   ← poll status
+           GET  /api/v1/jobs/<id>/download/ ← get file
+         Supported tools at launch: compress-pdf, merge-pdf,
+           pdf-to-word, img-to-pdf, compress-image, ocr
+         Rate limits per plan (django-ratelimit)
+
+[ ] 5.19 Webhooks
+         WebhookEndpoint model (user, url, secret)
+         On job done: POST to endpoint with job data + signed payload
+         Retry: 3 attempts with exponential backoff (Celery)
+
+[ ] 5.20 API key management (/dashboard/api/)
+         Generate / rotate API key
+         Usage counter (calls this month)
+         Webhook endpoint CRUD
+
+[ ] 5.21 API docs page (/api/docs/)
+         Clean hand-written HTML page (no Swagger)
+         Code examples: Python, Node.js, cURL
+         Shows all endpoints + parameters
+
+[ ] 5.22 Batch processing UI (Pro)
+         Upload 10+ files
+         Process all → ZIP download
+         Progress: "3 of 10 done" (HTMX polling)
+
+Deliverable: API key working end-to-end. First B2B client paying ₹5,000+/mo.
+             All major tools across 8 modules live (35+ tools).
+
+================================================================
+PHASE 6 — DOMINATION (Priority 4)
+Day 33–55 | ~25 hours
+Goal: Hindi UI. Team workspaces. Chrome extension. Unbeatable moat.
+================================================================
+
+  ── PRIORITY 4 TOOLS ────────────────────────────────────────
+
+[ ] 6.1  TOOL: Create PDF Form Builder (Pro)
+         Drag-and-drop field builder
+         Fields: text, checkbox, radio, date, signature, dropdown
+         Export as interactive PDF
+         URL: /tools/pdf-form-builder/
+
+[ ] 6.2  TOOL: AI Grammar & Spell Check PDF (Pro)
+         Extract text → GPT proofreads → show diff
+         Download corrected PDF
+         URL: /tools/ai-grammar-check/
+
+[ ] 6.3  TOOL: PDF/A Converter (Pro)
+         Archive-compliant format for legal/govt docs
+         Backend: Ghostscript PDF/A profile
+         URL: /tools/pdf-a-converter/
+
+[ ] 6.4  TOOL: Passport / ID Photo Generator (Free)
+         Upload photo → crop to standard sizes
+         India presets: Aadhaar, PAN, visa, passport
+         Background color change (white, blue, red)
+         URL: /tools/id-photo/
+         High India traffic. Students, job seekers.
+
+[ ] 6.5  TOOL: Add Watermark to Image
+[ ] 6.6  TOOL: Crop Image
+[ ] 6.7  TOOL: Text Case Converter (client-side, FREE)
+[ ] 6.8  TOOL: JSON Formatter (client-side, FREE)
+[ ] 6.9  TOOL: QR Code Scanner (client-side via jsQR, FREE)
+[ ] 6.10 TOOL: Barcode Generator (python-barcode, FREE)
+[ ] 6.11 TOOL: Password Generator (client-side, FREE)
+
+  ── HINDI LANGUAGE (i18n) ───────────────────────────────────
+
+[ ] 6.12 Django i18n setup
+         LANGUAGE_CODE = 'en'
+         LANGUAGES = [('en', 'English'), ('hi', 'Hindi')]
+         /hi/ URL prefix for Hindi pages
+         All Jinja2 templates use {% trans %} tags
+
+[ ] 6.13 Hindi translations
+         All tool names, descriptions, CTAs
+         Hindi blog content (5 posts at launch)
+         Target: Tier 2/3 cities, government office users
+
+  ── TEAM WORKSPACES ─────────────────────────────────────────
+
+[ ] 6.14 Team models
+         Team(name, owner, slug)
+         TeamMembership(team, user, role: admin/member/viewer)
+         Team job history shared across members
+
+[ ] 6.15 Team dashboard
+         /dashboard/team/
+         Invite by email
+         View all team's processed files
+         Usage by member
+
+  ── AFFILIATE PROGRAM ───────────────────────────────────────
+
+[ ] 6.16 Affiliate models
+         AffiliatePartner(user, code, commission_rate=0.30)
+         AffiliateClick(partner, referrer_url, created_at)
+         AffiliatePayout(partner, amount_paise, upi_id, paid_at)
+
+[ ] 6.17 Affiliate dashboard (/affiliate/)
+         Signup page + approval (manual review)
+         Dashboard: clicks, conversions, earnings, payout history
+         UPI payout (India-first — no PayPal complexity)
+
+  ── CHROME EXTENSION ────────────────────────────────────────
+
+[ ] 6.18 Chrome Extension (Manifest V3)
+         Context menu: right-click PDF link → SD-Toolx submenu
+           → Compress, Merge, Sign, Convert...
+         Sends file to API → downloads result
+         Published to Chrome Web Store
+         Distribution moat: passive discovery in browser
+
+  ── INFRA HARDENING ─────────────────────────────────────────
+
+[ ] 6.19 Error tracking: Sentry (prod only)
+[ ] 6.20 Uptime monitoring: BetterUptime or UptimeRobot
+[ ] 6.21 Celery monitoring: Flower dashboard (internal /flower/)
+[ ] 6.22 Redis caching for tool pages (5-min TTL)
+[ ] 6.23 Priority Celery worker for Pro/Business users
+[ ] 6.24 Cloudflare CDN for all static assets
+[ ] 6.25 Django security checklist (HTTPS, HSTS, CSRF, CSP headers)
+
+  ── WHITE-LABEL / ENTERPRISE ────────────────────────────────
+
+[ ] 6.26 /enterprise/ landing page
+         Custom domain deployment offer
+         Contact form → internal CRM / email
+         Pricing: ₹25,000 setup + ₹5,000/mo maintenance
+
+Deliverable: 44 tools live. Hindi UI. Chrome Extension published.
+             Team workspaces active. Affiliate paying commissions.
+
+================================================================
+COMPLETE APP STRUCTURE (updated for better.txt)
+================================================================
+
+sd-toolx/
+├── manage.py
+├── durga.py
+├── requirements.txt
+├── ba.txt                          ← CEO strategy
+├── better.txt                      ← final product roadmap
+├── dev.txt                         ← this file
+├── test_user.txt
+├── .env
+│
+├── core/
+│   ├── settings/
+│   │   ├── base.py
+│   │   ├── dev.py
+│   │   └── prod.py
+│   ├── urls.py
+│   ├── celery.py
+│   └── jinja2.py
+│
+├── users/
+│   ├── models.py                   ← User, Profile, ReferralLog
+│   ├── views.py
+│   ├── urls.py
+│   └── forms.py
+│
+├── dashboard/
+│   ├── views.py
+│   └── urls.py
+│
+├── billing/
+│   ├── models.py                   ← Plan, Subscription, Invoice
+│   ├── services/
+│   │   └── razorpay_service.py
+│   ├── views.py
+│   └── urls.py
+│
+├── blog/
+│   ├── models.py                   ← Post
+│   ├── views.py
+│   └── urls.py
+│
+├── features/
+│   ├── tools/
+│   │   ├── models.py               ← ToolJob, UsageLog
+│   │   ├── tasks.py                ← Celery tasks
+│   │   ├── seo_data.py             ← per-tool SEO strings (44 entries)
+│   │   ├── registry.py             ← TOOLS dict (slug → meta)
+│   │   ├── services/
+│   │   │   ├── file_handler.py
+│   │   │   ├── pdf/
+│   │   │   │   ├── compress.py
+│   │   │   │   ├── merge.py
+│   │   │   │   ├── split.py
+│   │   │   │   ├── rotate.py
+│   │   │   │   ├── to_word.py
+│   │   │   │   ├── to_excel.py
+│   │   │   │   ├── to_jpg.py
+│   │   │   │   ├── protect.py
+│   │   │   │   ├── sign.py
+│   │   │   │   ├── ocr.py
+│   │   │   │   └── watermark.py
+│   │   │   ├── image/
+│   │   │   │   ├── compress.py
+│   │   │   │   ├── resize.py
+│   │   │   │   ├── convert.py
+│   │   │   │   ├── remove_bg.py
+│   │   │   │   └── upscale.py
+│   │   │   └── ai/
+│   │   │       ├── summarize.py
+│   │   │       ├── chat.py
+│   │   │       ├── translate.py
+│   │   │       └── extract_data.py
+│   │   └── views/                  ← one view file per tool
+│   │
+│   ├── api/
+│   │   ├── views.py
+│   │   ├── urls.py
+│   │   └── webhooks.py
+│   │
+│   ├── esign/
+│   │   ├── models.py               ← SignRequest, Signee
+│   │   ├── views.py
+│   │   └── urls.py
+│   │
+│   └── affiliate/
+│       ├── models.py               ← AffiliatePartner, Click, Payout
+│       ├── views.py
+│       └── urls.py
+│
+├── templates/
+│   ├── base.jinja
+│   ├── layouts/
+│   │   ├── marketing.jinja
+│   │   ├── dashboard.jinja
+│   │   └── tool.jinja
+│   ├── components/
+│   │   ├── button.jinja
+│   │   ├── card.jinja
+│   │   ├── input.jinja
+│   │   ├── tool_card.jinja
+│   │   ├── upload_zone.jinja
+│   │   ├── dark_toggle.jinja
+│   │   └── plan_badge.jinja
+│   ├── partials/
+│   │   ├── _job_status.jinja       ← HTMX polling
+│   │   ├── _preview.jinja          ← result preview
+│   │   ├── _tool_result.jinja
+│   │   ├── _upgrade_prompt.jinja
+│   │   ├── _share.jinja            ← WhatsApp + copy link
+│   │   ├── _recent_files.jinja
+│   │   └── _usage_bar.jinja
+│   └── pages/
+│       ├── home.jinja
+│       ├── pricing.jinja
+│       ├── dashboard.jinja
+│       ├── blog/
+│       └── tools/
+│           ├── _tool_base.jinja    ← tool page template
+│           └── <one per tool>.jinja
+│
+└── static/
+    ├── manifest.json               ← PWA
+    └── sw.js                       ← service worker
+
+================================================================
+PHASE TIMELINE SUMMARY
+================================================================
+
+  Phase 0  → Day 1        → Bootstrap: Django + Celery + R2 + PWA + dark mode
+  Phase 1  → Day 2–5      → 10 MVP tools live. Sign PDF FREE. QR. Preview. WhatsApp share.
+  Phase 2  → Day 6–9      → 3 more tools + full SEO. Blog. Google indexed.
+  Phase 3  → Day 10–13    → Razorpay billing. Trial system. Upgrade prompts.
+  Phase 4  → Day 14–20    → AI tools (Remove BG, Summarizer). Referral. Email capture.
+  Phase 5  → Day 21–32    → Chat with PDF. OCR. API. Webhooks. 35+ tools total.
+  Phase 6  → Day 33–55    → Hindi UI. Chrome extension. Team workspaces. 44 tools total.
+
+  Revenue-positive target : Day 13 (first Razorpay payment)
+  Break-even (infra costs): Month 2
+  ₹1L MRR target          : Month 4
+  ₹10L MRR target         : Month 12
+
+================================================================
+CURRENT STATUS
+================================================================
+  Phase 0: [x] COMPLETE (May 16, 2026)
+  Phase 1: [x] COMPLETE (May 16, 2026)
+  Phase 2: [x] COMPLETE (May 16, 2026) — SEO + compress-pdf fixes
+  Phase 3: [x] COMPLETE (May 16, 2026) — Razorpay billing + trial
+  Phase 4: [x] COMPLETE (May 16, 2026)
+         Tools: merge+compress, pdf-to-word, reorder, delete pages, protect, unlock,
+                remove-background, ai-summarize-pdf
+         Growth: referral, email capture, social proof, launch/student, WhatsApp share
+         UX: progress % bar on all tools (HTMX poll + upload animation)
+         Compress: stronger profiles (max compression ~25% JPEG, 900px)
+  Phase 5: [x] COMPLETE (May 18, 2026)
+         Tools: excel-to-pdf, ppt-to-pdf, pdf-to-excel, pdf-to-ppt, watermark-pdf,
+                repair-pdf, redact-pdf, compare-pdf, fill-pdf-form, ocr, ai-translate-pdf,
+                ai-extract-data, upscale-image, word-counter (14 new tools → 31 total)
+         API: REST API v1 (jobs submit/poll/download, tool list, auth via api_key)
+              API docs page (/api/docs/), API key dashboard (/dashboard/api/)
+  Phase 6: [x] COMPLETE (May 18, 2026)
+         Tools: resize-image, convert-image, watermark-image, id-photo, ai-grammar-check,
+                barcode-generator, url-shortener (7 new tools)
+         Client-side: text-case-converter, json-formatter, password-generator
+         URL Shortener: ShortLink model + /s/<code>/ redirect
+         TOTAL: 41 tool pages (38 backend + 3 client-side)
+         NOT implemented (Phase 6 deferred): Hindi i18n, team workspaces,
+           affiliate program, Chrome extension (require separate significant effort)
+
+  PROJECT STATUS: Core platform COMPLETE — 41 tools live, REST API active
+  Next: Deploy to production, configure R2/Redis/Razorpay, submit to ProductHunt
+================================================================

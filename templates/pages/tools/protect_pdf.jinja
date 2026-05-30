@@ -1,0 +1,9 @@
+{% extends "pages/tools/_tool_base.jinja" %}
+{% block tool_form %}
+{% set accept = ".pdf" %}
+{% include "components/upload_zone.jinja" %}
+<label class="block text-sm font-medium mt-4">Password</label>
+<input type="password" name="password" required minlength="4"
+  class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900">
+{% endblock %}
+{% block submit_label %}Protect PDF{% endblock %}

@@ -1,0 +1,127 @@
+{% extends "layouts/tool.jinja" %}
+{% block title %}{{ seo.title|default(tool.seo.title|default(tool.name)) }} — {{ site_name }}{% endblock %}
+{% block extra_head %}
+{% if seo.description or tool.seo.description %}
+<meta name="description" content="{{ seo.description|default(tool.seo.description) }}">
+{% endif %}
+<link rel="canonical" href="{{ request.build_absolute_uri() }}">
+{% if seo.faq or tool.seo.faq %}
+<script type="application/ld+json">
+{{ seo_json_ld|safe }}
+</script>
+{% endif %}
+{% endblock %}
+{% block tool_content %}
+<div class="text-center mb-8">
+  <h1 class="text-3xl font-bold">{{ tool.seo.h1|default(tool.name) }}</h1>
+  <p class="text-gray-500 mt-2">{{ tool.description }}</p>
+</div>
+
+<form method="post" action="{{ request.path }}" enctype="multipart/form-data"
+      class="tool-upload-form space-y-6" id="tool-upload-form"
+      data-min-files="{{ tool.min_files|default(1) }}"
+      data-processing-text="{% block processing_text %}Processing your file…{% endblock %}">
+  <input type="hidden" name="csrfmiddlewaretoken" value="{{ get_csrf(request) }}">
+
+  {% block tool_form %}{% endblock %}
+
+  {% block tool_submit_row %}
+  <button type="submit" id="tool-submit-btn"
+    class="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition disabled:opacity-60">
+    <span id="tool-submit-label">{% block submit_label %}Process file{% endblock %}</span>
+    <span id="tool-submit-loading" class="hidden">Processing…</span>
+  </button>
+  {% endblock %}
+</form>
+
+<div id="tool-result" class="mt-2"></div>
+
+<div id="email-capture-slot"></div>
+
+<script>
+(function() {
+  const form = document.getElementById('tool-upload-form');
+  if (!form) return;
+  const result = document.getElementById('tool-result');
+  const btn = document.getElementById('tool-submit-btn');
+  const label = document.getElementById('tool-submit-label');
+  const loading = document.getElementById('tool-submit-loading');
+  const token = document.querySelector('meta[name="csrf-token"]')?.content;
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const fileInput = form.querySelector('input[type=file]');
+    const minFiles = parseInt(form.dataset.minFiles || '1', 10);
+    const procText = form.dataset.processingText || 'Processing your file…';
+    if (fileInput && fileInput.files.length < minFiles) {
+      const msg = minFiles > 1
+        ? 'Please select at least ' + minFiles + ' PDF files.'
+        : 'Please select a file first.';
+      result.innerHTML = '<div class="rounded-xl border border-red-300 bg-red-50 dark:bg-red-950/30 p-4 text-red-800 text-sm">' + msg + '</div>';
+      return;
+    }
+    btn.disabled = true;
+    label.classList.add('hidden');
+    loading.classList.remove('hidden');
+    result.innerHTML = '<div class="rounded-xl border border-gray-200 dark:border-gray-800 p-6 mt-4">' +
+      '<div class="flex justify-between text-sm mb-1.5"><span class="font-medium">' + procText + '</span>' +
+      '<span class="text-indigo-600 font-semibold tabular-nums" id="live-pct">5%</span></div>' +
+      '<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">' +
+      '<div id="live-bar" class="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full transition-all duration-300 relative" style="width:5%">' +
+      '<span class="absolute inset-0 bg-white/20 animate-pulse rounded-full"></span></div></div>' +
+      '<p class="text-xs text-gray-500 mt-1.5">Uploading…</p></div>';
+    let pct = 5;
+    const tick = setInterval(function() {
+      if (pct < 90) {
+        pct = Math.min(90, pct + 4 + Math.random() * 6);
+        const el = document.getElementById('live-pct');
+        const bar = document.getElementById('live-bar');
+        if (el) el.textContent = Math.floor(pct) + '%';
+        if (bar) bar.style.width = Math.floor(pct) + '%';
+      }
+    }, 450);
+
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: token ? { 'X-CSRFToken': token } : {},
+      });
+      const html = await res.text();
+      result.innerHTML = html;
+      htmx.process(result);
+    } catch (err) {
+      result.innerHTML = '<div class="rounded-xl border border-red-300 bg-red-50 p-4 text-red-800 text-sm">Network error. Check your connection and try again.</div>';
+    }
+    clearInterval(tick);
+    btn.disabled = false;
+    label.classList.remove('hidden');
+    loading.classList.add('hidden');
+  });
+})();
+</script>
+
+<section class="mt-12 text-sm text-gray-500">
+  <h2 class="font-semibold text-gray-700 dark:text-gray-300 mb-3">How it works</h2>
+  <ol class="list-decimal list-inside space-y-1">
+    <li>Upload your file</li>
+    <li>Click process — we handle it securely</li>
+    <li>Download your result in seconds</li>
+  </ol>
+</section>
+
+{% set faq_list = seo.faq|default(tool.seo.faq|default([])) %}
+{% if faq_list %}
+<section class="mt-10 border-t border-gray-200 dark:border-gray-800 pt-8">
+  <h2 class="font-semibold text-gray-800 dark:text-gray-200 mb-4">Frequently asked questions</h2>
+  <div class="space-y-4">
+    {% for item in faq_list %}
+    <details class="border border-gray-200 dark:border-gray-800 rounded-lg p-4">
+      <summary class="font-medium cursor-pointer">{{ item.q }}</summary>
+      <p class="mt-2 text-gray-500">{{ item.a }}</p>
+    </details>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}

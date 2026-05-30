@@ -1,0 +1,16 @@
+{% extends "pages/tools/_tool_base.jinja" %}
+{% block tool_form %}
+{% set accept = ".pdf" %}
+<label class="block border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl p-8 text-center hover:border-indigo-400 transition cursor-pointer">
+  <input type="file" name="file" accept=".pdf" class="sr-only" id="pdf-pages-file"
+    hx-post="{{ url('tools:page-thumbnails', args=['delete-pdf-pages']) }}"
+    hx-target="#page-grid-slot"
+    hx-swap="innerHTML"
+    hx-encoding="multipart/form-data"
+    hx-indicator="#pages-loading">
+  <span class="text-gray-500 text-sm">Upload PDF — select pages to delete</span>
+</label>
+<div id="pages-loading" class="htmx-indicator text-sm text-indigo-600 mt-2">Loading pages…</div>
+<div id="page-grid-slot"></div>
+{% endblock %}
+{% block submit_label %}Delete selected pages{% endblock %}

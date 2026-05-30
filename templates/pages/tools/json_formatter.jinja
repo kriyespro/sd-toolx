@@ -1,0 +1,39 @@
+{% extends "layouts/marketing.jinja" %}
+{% block title %}JSON Formatter & Validator Free | SD-Toolx{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-10">
+  <h1 class="text-3xl font-bold mb-2">JSON Formatter & Validator</h1>
+  <p class="text-gray-500 mb-6">Pretty-print, minify, and validate JSON instantly.</p>
+  <div class="grid grid-cols-2 gap-4">
+    <div>
+      <div class="flex justify-between items-center mb-1">
+        <label class="text-sm font-medium">Input JSON</label>
+        <div class="flex gap-2">
+          <button onclick="format()" class="px-3 py-1 bg-indigo-600 text-white rounded text-xs hover:bg-indigo-700">Format</button>
+          <button onclick="minify()" class="px-3 py-1 bg-gray-600 text-white rounded text-xs hover:bg-gray-700">Minify</button>
+        </div>
+      </div>
+      <textarea id="input" rows="20" placeholder='{"key": "value"}'
+        class="w-full border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-3 bg-white dark:bg-gray-900 font-mono text-sm resize-none"
+        oninput="validate()"></textarea>
+    </div>
+    <div>
+      <div class="flex justify-between items-center mb-1">
+        <label class="text-sm font-medium">Output</label>
+        <button onclick="copyOut()" class="px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700" id="copy-btn">Copy</button>
+      </div>
+      <textarea id="output" rows="20" readonly
+        class="w-full border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-3 bg-gray-50 dark:bg-gray-900 font-mono text-sm resize-none"></textarea>
+    </div>
+  </div>
+  <div id="status" class="mt-2 text-sm"></div>
+</div>
+<script>
+function validate() {
+  try { JSON.parse(document.getElementById('input').value); document.getElementById('status').innerHTML = '<span class="text-green-600">✓ Valid JSON</span>'; } catch(e) { document.getElementById('status').innerHTML = `<span class="text-red-500">✗ ${e.message}</span>`; }
+}
+function format() { try { const j = JSON.parse(document.getElementById('input').value); document.getElementById('output').value = JSON.stringify(j, null, 2); validate(); } catch(e) { document.getElementById('status').innerHTML = `<span class="text-red-500">✗ ${e.message}</span>`; } }
+function minify() { try { const j = JSON.parse(document.getElementById('input').value); document.getElementById('output').value = JSON.stringify(j); validate(); } catch(e) { document.getElementById('status').innerHTML = `<span class="text-red-500">✗ ${e.message}</span>`; } }
+function copyOut() { navigator.clipboard.writeText(document.getElementById('output').value).then(() => { document.getElementById('copy-btn').textContent = 'Copied!'; setTimeout(() => document.getElementById('copy-btn').textContent = 'Copy', 2000); }); }
+</script>
+{% endblock %}

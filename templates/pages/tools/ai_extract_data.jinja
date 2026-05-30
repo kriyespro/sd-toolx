@@ -1,0 +1,13 @@
+{% extends "pages/tools/_tool_base.jinja" %}
+{% block tool_form %}
+{% set accept = ".pdf" %}
+{% include "components/upload_zone.jinja" %}
+<div class="mt-3 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
+  <p class="text-sm text-indigo-800 dark:text-indigo-200">
+    AI extracts: <strong>names, dates, amounts, addresses, organizations</strong> and key facts.
+    Great for invoices, contracts, and forms.
+  </p>
+</div>
+{% endblock %}
+{% block submit_label %}Extract Data{% endblock %}
+{% block processing_text %}Analyzing document with AI…{% endblock %}

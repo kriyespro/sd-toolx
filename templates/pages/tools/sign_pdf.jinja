@@ -1,0 +1,52 @@
+{% extends "pages/tools/_tool_base.jinja" %}
+{% block tool_form %}
+{% set accept = ".pdf" %}
+{% include "components/upload_zone.jinja" %}
+<div class="mt-4" x-data="{ drawing: false }">
+  <label class="block text-sm font-medium mb-2">Draw your signature</label>
+  <canvas id="sig-canvas" width="400" height="120"
+    class="border border-gray-300 dark:border-gray-700 rounded-lg w-full bg-white cursor-crosshair"></canvas>
+  <input type="hidden" name="signature_data" id="sig-data">
+  <button type="button" class="text-sm text-gray-500 mt-2" onclick="document.getElementById('sig-canvas').getContext('2d').clearRect(0,0,400,120); document.getElementById('sig-data').value=''">Clear</button>
+</div>
+<script>
+(function() {
+  const canvas = document.getElementById('sig-canvas');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  ctx.strokeStyle = '#1e1b4b';
+  ctx.lineWidth = 2;
+  const pos = (e) => {
+    const r = canvas.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+    const y = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
+    return { x: x * (canvas.width / r.width), y: y * (canvas.height / r.height) };
+  };
+  const start = (e) => { drawing = true; const p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); };
+  const draw = (e) => {
+    if (!drawing) return;
+    const p = pos(e);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    e.preventDefault();
+  };
+  const end = () => {
+    if (drawing) {
+      drawing = false;
+      document.getElementById('sig-data').value = canvas.toDataURL('image/png');
+    }
+  };
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', end);
+  canvas.addEventListener('touchstart', start);
+  canvas.addEventListener('touchmove', draw);
+  canvas.addEventListener('touchend', end);
+  document.querySelector('form').addEventListener('submit', () => {
+    if (!document.getElementById('sig-data').value)
+      document.getElementById('sig-data').value = canvas.toDataURL('image/png');
+  });
+})();
+</script>
+{% endblock %}
+{% block submit_label %}Sign PDF{% endblock %}

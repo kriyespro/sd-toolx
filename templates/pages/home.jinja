@@ -1,0 +1,384 @@
+{% extends "layouts/marketing.jinja" %}
+{% block title %}SD-Toolx — Free PDF & Image Tools. No Signup. No Ads.{% endblock %}
+{% block meta_description %}38 free online tools for PDF and images. Compress, merge, split, convert, sign PDFs. Remove backgrounds, resize images. Works in your browser — no signup required.{% endblock %}
+
+{% block extra_head %}
+<style>
+  @keyframes float-y { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  @keyframes fade-up { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes shimmer { 0%{background-position:200% center} 100%{background-position:-200% center} }
+  .animate-float { animation: float-y 4s ease-in-out infinite; }
+  .animate-fade-up { animation: fade-up .6s ease forwards; }
+  .animate-fade-up-d1 { animation: fade-up .6s .1s ease both; }
+  .animate-fade-up-d2 { animation: fade-up .6s .2s ease both; }
+  .animate-fade-up-d3 { animation: fade-up .6s .3s ease both; }
+  .gradient-text {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .gradient-text-shimmer {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6, #06b6d4, #6366f1);
+    background-size: 200% auto;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    animation: shimmer 3s linear infinite;
+  }
+  .hero-bg {
+    background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(99,102,241,.15) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 40% at 80% 60%, rgba(139,92,246,.10) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 50% at 10% 80%, rgba(6,182,212,.08) 0%, transparent 60%);
+  }
+  .dark .hero-bg {
+    background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(99,102,241,.20) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 40% at 80% 60%, rgba(139,92,246,.15) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 50% at 10% 80%, rgba(6,182,212,.12) 0%, transparent 60%);
+  }
+  .card-hover {
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(99,102,241,.15);
+    border-color: rgba(99,102,241,.4) !important;
+  }
+  .dark .card-hover:hover { box-shadow: 0 12px 32px rgba(99,102,241,.25); }
+  .step-line::after {
+    content: '';
+    position: absolute; top: 28px; left: calc(50% + 28px);
+    width: calc(100% - 56px); height: 2px;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    opacity: .25;
+  }
+  @media (max-width: 768px) { .step-line::after { display:none; } }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{# ── HERO ─────────────────────────────────────────────────────────────────── #}
+<section class="hero-bg relative overflow-hidden pt-16 pb-24 px-4">
+  <div class="max-w-5xl mx-auto text-center">
+    {# Badge #}
+    <div class="animate-fade-up inline-flex items-center gap-2 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 rounded-full px-4 py-1.5 text-sm font-medium text-indigo-700 dark:text-indigo-300 mb-8">
+      <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+      {{ tools_count }} free tools — updated 2026
+    </div>
+
+    {# Headline #}
+    <h1 class="animate-fade-up-d1 text-5xl md:text-7xl font-extrabold tracking-tight leading-tight mb-6">
+      Every PDF & Image tool<br>
+      <span class="gradient-text-shimmer">you'll ever need.</span>
+    </h1>
+
+    <p class="animate-fade-up-d2 text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+      Compress, merge, split, sign, convert. Remove backgrounds, resize, generate QR codes.
+      <strong class="text-gray-800 dark:text-gray-200">100% free. No signup. No ads.</strong>
+      Works entirely in your browser.
+    </p>
+
+    {# CTA Buttons #}
+    <div class="animate-fade-up-d3 flex flex-wrap justify-center gap-4 mb-14">
+      <a href="{{ url('tools:index') }}"
+         class="group inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-2xl font-semibold text-lg shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all duration-200">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Try all {{ tools_count }} tools free
+        <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </a>
+      <a href="{{ url('billing:pricing') }}"
+         class="inline-flex items-center gap-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 px-8 py-4 rounded-2xl font-semibold text-lg hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200">
+        See pricing
+      </a>
+    </div>
+
+    {# Trust pills #}
+    <div class="animate-fade-up-d3 flex flex-wrap justify-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+      <span class="flex items-center gap-1.5">
+        <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+        No signup required
+      </span>
+      <span class="flex items-center gap-1.5">
+        <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+        No watermarks
+      </span>
+      <span class="flex items-center gap-1.5">
+        <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+        Files deleted after 2 hours
+      </span>
+      <span class="flex items-center gap-1.5">
+        <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+        Works on mobile
+      </span>
+    </div>
+  </div>
+
+  {# Decorative blobs #}
+  <div class="absolute top-20 left-10 w-72 h-72 rounded-full bg-indigo-400/5 dark:bg-indigo-400/8 blur-3xl pointer-events-none"></div>
+  <div class="absolute bottom-0 right-10 w-96 h-96 rounded-full bg-violet-400/5 dark:bg-violet-400/8 blur-3xl pointer-events-none"></div>
+</section>
+
+{# ── STATS BAR ─────────────────────────────────────────────────────────────── #}
+<div class="border-y border-gray-100 dark:border-gray-800 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm py-6">
+  <div class="max-w-5xl mx-auto px-4">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+      <div>
+        <p class="text-3xl font-extrabold gradient-text">{{ tools_count }}+</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Free tools</p>
+      </div>
+      <div>
+        <p class="text-3xl font-extrabold gradient-text">0</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Signups needed</p>
+      </div>
+      <div>
+        <p class="text-3xl font-extrabold gradient-text">2h</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Auto-delete files</p>
+      </div>
+      <div>
+        <p class="text-3xl font-extrabold gradient-text">∞</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Daily uses (Pro)</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ── FEATURED TOOLS GRID ───────────────────────────────────────────────────── #}
+<section class="max-w-6xl mx-auto px-4 py-20">
+  <div class="text-center mb-14">
+    <p class="text-indigo-600 dark:text-indigo-400 font-semibold text-sm uppercase tracking-wider mb-3">Popular tools</p>
+    <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-4">Everything you need, right now</h2>
+    <p class="text-gray-500 dark:text-gray-400 max-w-xl mx-auto">From quick PDF fixes to AI-powered conversions — all free, all instant.</p>
+  </div>
+
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    {% for tool in featured_tools %}
+    <a href="{{ url(tool.url_name) }}"
+       class="card-hover group relative bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-5 flex flex-col gap-3 shadow-sm">
+      <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 {{ tool.icon_cls }}">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="{{ tool.icon_path }}"/>
+        </svg>
+      </div>
+      <div>
+        <h3 class="font-semibold text-gray-900 dark:text-gray-100 text-sm leading-tight mb-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{{ tool.name }}</h3>
+        <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{{ tool.description }}</p>
+      </div>
+      <span class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+        <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </span>
+    </a>
+    {% endfor %}
+  </div>
+
+  <div class="text-center mt-10">
+    <a href="{{ url('tools:index') }}"
+       class="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold hover:gap-3 transition-all duration-200">
+      Browse all {{ tools_count }} tools
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+</section>
+
+{# ── CATEGORIES ────────────────────────────────────────────────────────────── #}
+<section class="bg-gray-50 dark:bg-gray-950/50 py-20 px-4">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-14">
+      <p class="text-indigo-600 dark:text-indigo-400 font-semibold text-sm uppercase tracking-wider mb-3">Tool categories</p>
+      <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight">Browse by category</h2>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      {% set cat_colors = {
+        'pdf': 'from-indigo-500 to-indigo-700',
+        'image': 'from-violet-500 to-purple-700',
+        'utility': 'from-teal-500 to-cyan-700'
+      } %}
+      {% set cat_bg = {
+        'pdf': 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-100 dark:border-indigo-900/60',
+        'image': 'bg-violet-50 dark:bg-violet-950/40 border-violet-100 dark:border-violet-900/60',
+        'utility': 'bg-teal-50 dark:bg-teal-950/40 border-teal-100 dark:border-teal-900/60'
+      } %}
+      {% set cat_text = {
+        'pdf': 'text-indigo-600 dark:text-indigo-400',
+        'image': 'text-violet-600 dark:text-violet-400',
+        'utility': 'text-teal-600 dark:text-teal-400'
+      } %}
+      {% for cat in categories %}
+      <a href="{{ url('tools:index') }}#{{ cat.slug }}"
+         class="group card-hover block {{ cat_bg[cat.slug] }} border rounded-2xl p-8 text-center shadow-sm">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br {{ cat_colors[cat.slug] }} flex items-center justify-center mx-auto mb-5 shadow-md group-hover:scale-105 transition-transform duration-200">
+          <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="{{ cat.icon_path }}"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold mb-2 {{ cat_text[cat.slug] }}">{{ cat.name }}</h3>
+        <p class="text-3xl font-extrabold text-gray-900 dark:text-gray-100 mb-1">{{ cat.count }}</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">tools available</p>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ── FEATURES ──────────────────────────────────────────────────────────────── #}
+<section class="max-w-5xl mx-auto px-4 py-20">
+  <div class="text-center mb-14">
+    <p class="text-indigo-600 dark:text-indigo-400 font-semibold text-sm uppercase tracking-wider mb-3">Why SD-Toolx</p>
+    <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-4">Built different</h2>
+    <p class="text-gray-500 dark:text-gray-400 max-w-xl mx-auto">We stripped away every barrier — no accounts, no paywalls on core tools, no annoying upsells mid-workflow.</p>
+  </div>
+
+  <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    {% set features = [
+      ("M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z", "bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400", "Zero signup", "Jump straight in. No email, no password, no friction."),
+      ("M13 10V3L4 14h7v7l9-11h-7z", "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-600 dark:text-yellow-400", "Instant results", "Files processed in seconds. No queues for standard tools."),
+      ("M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z", "bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400", "AI-powered", "Summarize, translate, extract data — GPT-4o inside."),
+      ("M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4", "bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400", "Private by design", "Files auto-deleted after 2 hours. Nothing stored long-term."),
+    ] %}
+    {% for icon_path, icon_cls, title, desc in features %}
+    <div class="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+      <div class="w-12 h-12 rounded-xl {{ icon_cls }} flex items-center justify-center mb-4">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="{{ icon_path }}"/>
+        </svg>
+      </div>
+      <h3 class="font-bold text-gray-900 dark:text-gray-100 mb-2">{{ title }}</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{{ desc }}</p>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+{# ── HOW IT WORKS ──────────────────────────────────────────────────────────── #}
+<section class="bg-gradient-to-br from-indigo-50 via-white to-violet-50 dark:from-indigo-950/30 dark:via-gray-950 dark:to-violet-950/30 py-20 px-4">
+  <div class="max-w-4xl mx-auto">
+    <div class="text-center mb-14">
+      <p class="text-indigo-600 dark:text-indigo-400 font-semibold text-sm uppercase tracking-wider mb-3">How it works</p>
+      <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight">Three steps to done</h2>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8 relative">
+      {% set steps = [
+        ("M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12", "01", "Upload your file", "Drag & drop or click to select. PDF, Word, Excel, JPG, PNG — we handle them all."),
+        ("M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z", "02", "We process it", "Our engine runs instantly in the cloud. AI tools use GPT-4o for best-in-class results."),
+        ("M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4", "03", "Download result", "Your file is ready in seconds. Download it. We delete it automatically after 2 hours."),
+      ] %}
+      {% for icon_path, step_num, title, desc in steps %}
+      <div class="relative text-center">
+        <div class="w-16 h-16 rounded-2xl bg-white dark:bg-gray-900 border-2 border-indigo-200 dark:border-indigo-800 shadow-lg flex items-center justify-center mx-auto mb-5 relative z-10">
+          <svg class="w-7 h-7 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="{{ icon_path }}"/>
+          </svg>
+        </div>
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 w-6 h-6 rounded-full bg-indigo-600 dark:bg-indigo-500 text-white text-xs font-bold flex items-center justify-center z-20">{{ loop.index }}</div>
+        {% if not loop.last %}
+        <div class="hidden md:block absolute top-8 left-[calc(50%+36px)] right-0 h-0.5 bg-gradient-to-r from-indigo-200 to-violet-200 dark:from-indigo-800 dark:to-violet-800"></div>
+        {% endif %}
+        <h3 class="font-bold text-gray-900 dark:text-gray-100 mb-2 text-lg">{{ title }}</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{{ desc }}</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="text-center mt-12">
+      <a href="{{ url('tools:compress-pdf') }}"
+         class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-2xl font-semibold shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all duration-200">
+        Try compress PDF — it's free
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+{# ── PRICING TEASER ────────────────────────────────────────────────────────── #}
+<section class="max-w-5xl mx-auto px-4 py-20">
+  <div class="text-center mb-14">
+    <p class="text-indigo-600 dark:text-indigo-400 font-semibold text-sm uppercase tracking-wider mb-3">Pricing</p>
+    <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-4">Free for most. Powerful for all.</h2>
+    <p class="text-gray-500 dark:text-gray-400 max-w-xl mx-auto">Start with 5 free operations per day. Upgrade for unlimited use, larger files, and AI tools.</p>
+  </div>
+
+  <div class="grid md:grid-cols-3 gap-6">
+    {# Free #}
+    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-8 shadow-sm">
+      <h3 class="font-bold text-lg mb-1">Free</h3>
+      <p class="text-4xl font-extrabold mb-1">₹0</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Forever free</p>
+      <ul class="space-y-2.5 text-sm text-gray-600 dark:text-gray-400 mb-8">
+        {% for item in ["5 operations / day", "20 MB max file size", "All core tools", "No watermarks"] %}
+        <li class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          {{ item }}
+        </li>
+        {% endfor %}
+      </ul>
+      <a href="{{ url('tools:index') }}" class="block text-center border border-gray-200 dark:border-gray-700 hover:border-indigo-400 text-gray-700 dark:text-gray-300 font-semibold py-3 rounded-xl transition-colors">
+        Start for free
+      </a>
+    </div>
+
+    {# Pro — highlighted #}
+    <div class="relative bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl p-8 shadow-2xl shadow-indigo-500/30 text-white">
+      <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-400 text-amber-900 text-xs font-bold px-3 py-1 rounded-full">MOST POPULAR</div>
+      <h3 class="font-bold text-lg mb-1 text-white">Pro</h3>
+      <p class="text-4xl font-extrabold mb-1">₹249<span class="text-lg font-normal opacity-80">/mo</span></p>
+      <p class="text-sm opacity-70 mb-6">Billed monthly</p>
+      <ul class="space-y-2.5 text-sm mb-8">
+        {% for item in ["Unlimited operations", "200 MB max file size", "All tools + AI tools", "Batch processing", "Priority processing"] %}
+        <li class="flex items-center gap-2 text-indigo-100">
+          <svg class="w-4 h-4 text-indigo-200 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          {{ item }}
+        </li>
+        {% endfor %}
+      </ul>
+      <a href="{{ url('billing:pricing') }}" class="block text-center bg-white text-indigo-600 font-bold py-3 rounded-xl hover:bg-indigo-50 transition-colors">
+        Upgrade to Pro
+      </a>
+    </div>
+
+    {# Business #}
+    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-8 shadow-sm">
+      <h3 class="font-bold text-lg mb-1">Business</h3>
+      <p class="text-4xl font-extrabold mb-1">₹799<span class="text-lg font-normal text-gray-400">/mo</span></p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">For teams & API access</p>
+      <ul class="space-y-2.5 text-sm text-gray-600 dark:text-gray-400 mb-8">
+        {% for item in ["Everything in Pro", "1 GB max file size", "REST API access", "5 team seats", "Dedicated support"] %}
+        <li class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          {{ item }}
+        </li>
+        {% endfor %}
+      </ul>
+      <a href="{{ url('billing:pricing') }}" class="block text-center border border-gray-200 dark:border-gray-700 hover:border-indigo-400 text-gray-700 dark:text-gray-300 font-semibold py-3 rounded-xl transition-colors">
+        View Business plan
+      </a>
+    </div>
+  </div>
+</section>
+
+{# ── CTA BANNER ────────────────────────────────────────────────────────────── #}
+<section class="py-8 px-4 pb-24">
+  <div class="max-w-4xl mx-auto">
+    <div class="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-indigo-600 to-violet-700 rounded-3xl px-8 py-16 text-center shadow-2xl shadow-indigo-500/30">
+      {# Decorative circles #}
+      <div class="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-white/5"></div>
+      <div class="absolute -bottom-16 -left-8 w-64 h-64 rounded-full bg-white/5"></div>
+
+      <h2 class="relative text-3xl md:text-4xl font-extrabold text-white mb-4 tracking-tight">
+        Start processing for free today
+      </h2>
+      <p class="relative text-indigo-200 text-lg mb-10 max-w-xl mx-auto">
+        No credit card. No signup. Just pick a tool and go. Upgrade anytime for unlimited access.
+      </p>
+      <div class="relative flex flex-wrap justify-center gap-4">
+        <a href="{{ url('tools:compress-pdf') }}"
+           class="bg-white text-indigo-600 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-indigo-50 transition-colors shadow-lg">
+          Compress a PDF — free
+        </a>
+        <a href="{{ url('tools:remove-background') }}"
+           class="bg-white/10 hover:bg-white/20 border border-white/30 text-white px-8 py-4 rounded-2xl font-semibold text-lg transition-colors">
+          Remove background
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,7 @@
+{% extends "pages/tools/_tool_base.jinja" %}
+{% block tool_form %}
+{% set accept = ".pptx,.ppt,.odp" %}
+{% include "components/upload_zone.jinja" %}
+<p class="text-xs text-gray-500 mt-2">Supports .pptx, .ppt, .odp formats. All slides converted to PDF pages.</p>
+{% endblock %}
+{% block submit_label %}Convert to PDF{% endblock %}

@@ -1,0 +1,5 @@
+<div class="rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 p-6 text-center">
+  <p class="font-medium text-amber-900 dark:text-amber-100 mb-2">{{ message|default("Daily limit reached.") }}</p>
+  <p class="text-sm text-amber-800 dark:text-amber-200 mb-4">Upgrade to Pro for unlimited operations — ₹249/mo</p>
+  <a href="{{ url('billing:pricing') }}" class="inline-block bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700">See plans</a>
+</div>

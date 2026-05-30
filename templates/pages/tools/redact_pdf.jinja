@@ -1,0 +1,12 @@
+{% extends "pages/tools/_tool_base.jinja" %}
+{% block tool_form %}
+{% set accept = ".pdf" %}
+{% include "components/upload_zone.jinja" %}
+<div class="mt-4">
+  <label class="block text-sm font-medium">Text to redact <span class="text-gray-400">(one per line)</span></label>
+  <textarea name="search_terms" rows="4" placeholder="John Smith&#10;123-456-7890&#10;confidential@email.com"
+    class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 mt-1 font-mono text-sm"></textarea>
+  <p class="text-xs text-gray-500 mt-1">Each matching occurrence will be permanently blacked out. Case-sensitive.</p>
+</div>
+{% endblock %}
+{% block submit_label %}Redact PDF{% endblock %}

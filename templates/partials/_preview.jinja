@@ -1,0 +1,7 @@
+{% if job.preview_file %}
+<div class="mb-4">
+  <p class="text-sm text-gray-500 mb-2">Preview</p>
+  <img src="/media/{{ job.preview_file }}" alt="Preview" class="max-h-48 rounded-lg border border-gray-200 dark:border-gray-700">
+  <p class="text-xs text-gray-400 mt-1">Is this what you wanted?</p>
+</div>
+{% endif %}

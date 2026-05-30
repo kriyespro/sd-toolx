@@ -1,0 +1,5 @@
+<button type="button" @click="dark = !dark; localStorage.setItem('dark', dark)"
+  class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Toggle dark mode">
+  <span x-show="!dark">🌙</span>
+  <span x-show="dark">☀️</span>
+</button>

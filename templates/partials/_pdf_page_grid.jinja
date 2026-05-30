@@ -1,0 +1,35 @@
+<div id="pdf-page-grid" class="mt-4" x-data="{ order: [{% for p in pages %}{{ p.index }}{% if not loop.last %},{% endif %}{% endfor %}] }">
+  <p class="text-sm text-gray-500 mb-3">{{ pages|length }} page(s) — {% if mode == 'delete-pdf-pages' %}click to mark pages for removal{% else %}drag to reorder{% endif %}</p>
+  <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3" id="sortable-pages">
+    {% for p in pages %}
+    <label class="relative border-2 rounded-lg overflow-hidden cursor-pointer transition
+      {% if mode == 'delete-pdf-pages' %}border-gray-200 dark:border-gray-700 has-[:checked]:border-red-500 has-[:checked]:opacity-60{% else %}border-gray-200 dark:border-gray-700{% endif %}"
+      data-page="{{ p.index }}">
+      {% if mode == 'delete-pdf-pages' %}
+      <input type="checkbox" name="delete_pages" value="{{ p.index }}" class="sr-only peer">
+      {% endif %}
+      <img src="data:image/jpeg;base64,{{ p.thumb }}" alt="Page {{ p.index + 1 }}" class="w-full aspect-[3/4] object-cover">
+      <span class="absolute bottom-0 inset-x-0 bg-black/60 text-white text-xs text-center py-1">{{ p.index + 1 }}</span>
+    </label>
+    {% endfor %}
+  </div>
+  <input type="hidden" name="order" id="page-order-input" value="{% for p in pages %}{{ p.index }}{% if not loop.last %},{% endif %}{% endfor %}">
+</div>
+
+{% if mode == 'reorder-pdf' %}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<script>
+(function() {
+  const el = document.getElementById('sortable-pages');
+  const input = document.getElementById('page-order-input');
+  if (!el || !input || typeof Sortable === 'undefined') return;
+  Sortable.create(el, {
+    animation: 150,
+    onEnd: function() {
+      const order = [...el.querySelectorAll('[data-page]')].map(n => n.dataset.page);
+      input.value = order.join(',');
+    }
+  });
+})();
+</script>
+{% endif %}

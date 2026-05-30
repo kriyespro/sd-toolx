@@ -1,0 +1,7 @@
+<label class="block border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl p-8 text-center hover:border-indigo-400 transition cursor-pointer">
+  <input type="file" name="{{ name|default('file') }}" {% if multiple %}multiple{% endif %}
+    accept="{{ accept|default('.pdf') }}" class="sr-only" id="upload-{{ name|default('file') }}"
+    onchange="document.getElementById('filename-{{ name|default('file') }}').textContent = this.files.length + ' file(s) selected'">
+  <span class="text-gray-500 text-sm">Drag &amp; drop or click to upload</span>
+  <p id="filename-{{ name|default('file') }}" class="text-indigo-600 text-sm mt-2 font-medium"></p>
+</label>

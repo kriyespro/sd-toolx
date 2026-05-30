@@ -1,0 +1,40 @@
+{% extends "pages/tools/_tool_base.jinja" %}
+{% block tool_form %}
+{% set accept = ".pdf" %}
+{% include "components/upload_zone.jinja" %}
+<div class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+  <p class="text-sm text-blue-800 dark:text-blue-200">
+    <strong>How it works:</strong> Upload a PDF with form fields. The tool detects field names.
+    Add field values below using the format <code class="bg-blue-100 dark:bg-blue-800 px-1 rounded">field_FIELDNAME</code>.
+  </p>
+</div>
+<div class="mt-4 space-y-2" id="form-fields">
+  <label class="block text-sm font-medium">Form field values</label>
+  <div class="flex gap-2">
+    <input type="text" placeholder="Field name" id="new-field-name"
+      class="flex-1 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 text-sm">
+    <input type="text" placeholder="Value" id="new-field-value"
+      class="flex-1 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 text-sm">
+    <button type="button" onclick="addField()"
+      class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700">Add</button>
+  </div>
+  <div id="field-list" class="space-y-2"></div>
+</div>
+<script>
+function addField() {
+  const name = document.getElementById('new-field-name').value.trim();
+  const val = document.getElementById('new-field-value').value.trim();
+  if (!name) return;
+  const list = document.getElementById('field-list');
+  const row = document.createElement('div');
+  row.className = 'flex gap-2 items-center';
+  row.innerHTML = `<span class="text-sm text-gray-600 dark:text-gray-400 flex-1">${name}: <strong>${val}</strong></span>
+    <input type="hidden" name="field_${name}" value="${val}">
+    <button type="button" onclick="this.parentElement.remove()" class="text-red-400 text-sm">Remove</button>`;
+  list.appendChild(row);
+  document.getElementById('new-field-name').value = '';
+  document.getElementById('new-field-value').value = '';
+}
+</script>
+{% endblock %}
+{% block submit_label %}Fill Form{% endblock %}

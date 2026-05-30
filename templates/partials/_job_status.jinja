@@ -1,0 +1,76 @@
+<div id="job-status-{{ job.id }}"
+  {% if job.status in ['pending', 'processing'] %}
+  hx-get="{{ url('tools:job-status', args=[job.id]) }}"
+  hx-trigger="every 500ms"
+  hx-swap="outerHTML"
+  {% endif %}
+  class="rounded-xl border border-gray-200 dark:border-gray-800 p-6 mt-6">
+
+  {% if job.status in ['pending', 'processing'] %}
+  {% set progress = job.compression_stat.progress|default(5)|int %}
+  {% set stage = job.compression_stat.stage|default('Working on your file…') %}
+  <div class="flex items-start gap-4">
+    <svg class="animate-spin h-7 w-7 text-indigo-600 shrink-0 mt-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+    </svg>
+    <div class="flex-1 min-w-0">
+      {% include "components/progress_bar.jinja" with context %}
+    </div>
+  </div>
+
+  {% elif job.status == 'done' %}
+  <p class="font-semibold text-green-600 dark:text-green-400 mb-4">Done!</p>
+
+  {% if job.compression_stat.get('summary') %}
+  <div class="prose prose-sm dark:prose-invert max-w-none mb-4 text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{{ job.compression_stat.summary }}</div>
+  {% endif %}
+
+  {% if job.compression_stat.get('pages') %}
+  <p class="text-sm text-gray-500 mb-2">{{ job.compression_stat.pages }} page(s){% if job.compression_stat.get('files_merged') %} from {{ job.compression_stat.files_merged }} files{% endif %}</p>
+  {% endif %}
+  {% if job.compression_stat.get('achieved_target') %}
+  <p class="text-sm text-green-600 dark:text-green-400 mb-2">~90% compression target reached</p>
+  {% elif job.compression_stat.get('lossless') %}
+  <p class="text-sm text-indigo-600 dark:text-indigo-400 mb-2">Lossless compression applied</p>
+  {% endif %}
+  {% if job.compression_stat.get('original_bytes') %}
+  {% if job.compression_stat.get('output_bytes', 0) > job.compression_stat.get('original_bytes', 0) %}
+  <p class="text-sm text-amber-600 dark:text-amber-400 mb-2">Output was larger — we picked the smallest version available.</p>
+  {% endif %}
+  <p class="text-sm mb-4">
+    {% if job.compression_stat.get('saved_pct', 0) >= 3 %}
+    {% if tool.slug == 'merge-pdf' %}Merged &amp; compressed — {% endif %}reduced by <strong>{{ job.compression_stat.saved_pct }}%</strong>
+    {% else %}
+    <span class="text-gray-600 dark:text-gray-400">{{ job.compression_stat.get('message', 'File processed successfully.') }}</span>
+    {% endif %}
+    ({{ (job.compression_stat.original_bytes / 1024)|round(1) }} KB →
+    {{ (job.compression_stat.output_bytes / 1024)|round(1) }} KB)
+  </p>
+  {% endif %}
+
+  {% include "partials/_preview.jinja" %}
+
+  <div class="flex flex-wrap gap-3">
+    <a href="{{ url('tools:job-download', args=[job.id]) }}"
+       class="bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-indigo-700">
+      Download file
+    </a>
+    <button type="button" onclick="location.reload()"
+      class="px-6 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800">
+      Process another
+    </button>
+  </div>
+
+  {% include "partials/_share.jinja" %}
+
+  {% if show_email_capture %}
+  {% include "partials/_email_capture.jinja" %}
+  {% endif %}
+
+  {% elif job.status == 'failed' %}
+  <p class="font-semibold text-red-600 mb-2">Something went wrong</p>
+  <p class="text-sm text-gray-500">{{ job.error_message }}</p>
+  <button type="button" onclick="location.reload()" class="mt-4 text-indigo-600 text-sm">Try again</button>
+  {% endif %}
+</div>

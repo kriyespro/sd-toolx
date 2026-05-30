@@ -1,0 +1,24 @@
+{% extends "pages/tools/_tool_base.jinja" %}
+{% block tool_form %}
+<div class="space-y-4">
+  <div>
+    <label class="block text-sm font-medium mb-1">Paste text directly</label>
+    <textarea name="text" rows="8" placeholder="Paste your text here to count words, characters, sentences…"
+      class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 text-sm resize-y"
+      id="text-input"></textarea>
+    <p class="text-xs text-gray-500 mt-1" id="live-count">Words: 0 | Characters: 0</p>
+  </div>
+  <div class="text-center text-sm text-gray-400">— or upload a file —</div>
+  {% set accept = ".pdf,.docx,.doc,.txt" %}
+  {% include "components/upload_zone.jinja" %}
+</div>
+<script>
+document.getElementById('text-input').addEventListener('input', function() {
+  const t = this.value;
+  const words = t.trim() ? t.trim().split(/\s+/).length : 0;
+  const chars = t.length;
+  document.getElementById('live-count').textContent = `Words: ${words.toLocaleString()} | Characters: ${chars.toLocaleString()}`;
+});
+</script>
+{% endblock %}
+{% block submit_label %}Count Words{% endblock %}

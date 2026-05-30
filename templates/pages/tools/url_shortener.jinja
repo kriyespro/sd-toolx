@@ -1,0 +1,10 @@
+{% extends "pages/tools/_tool_base.jinja" %}
+{% block tool_form %}
+<div>
+  <label class="block text-sm font-medium">URL to shorten</label>
+  <input type="url" name="url" placeholder="https://example.com/very/long/url"
+    class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 mt-1">
+  <p class="text-xs text-gray-500 mt-1">Creates a short sdtoolx.com/s/ link. Links expire after 90 days of inactivity.</p>
+</div>
+{% endblock %}
+{% block submit_label %}Shorten URL{% endblock %}

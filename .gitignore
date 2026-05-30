@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+.env
+
+# Django
+*.log
+db.sqlite3
+media/
+staticfiles/
+local_settings.py
+
+# IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Plan folder (local notes)
+plan/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Tailwind build
+static/css/dist/
+
+# Coverage
+htmlcov/
+.coverage
+.pytest_cache/

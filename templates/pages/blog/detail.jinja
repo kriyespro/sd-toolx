@@ -1,0 +1,9 @@
+{% extends "layouts/marketing.jinja" %}
+{% block title %}{{ post.title }} — {{ site_name }}{% endblock %}
+{% block content %}
+<article class="max-w-3xl mx-auto px-4 py-12">
+  <h1>{{ post.title }}</h1>
+  <p class="text-sm text-gray-500">{{ post.published_at|date('F j, Y') }}</p>
+  <div class="mt-8 prose dark:prose-invert max-w-none">{{ content_html|safe }}</div>
+</article>
+{% endblock %}

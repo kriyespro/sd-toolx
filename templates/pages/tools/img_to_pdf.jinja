@@ -1,0 +1,14 @@
+{% extends "pages/tools/_tool_base.jinja" %}
+{% block tool_form %}
+{% set accept = ".jpg,.jpeg,.png,.webp" %}
+{% set multiple = true %}
+{% set name = "files" %}
+{% include "components/upload_zone.jinja" %}
+<label class="block text-sm font-medium mt-4">Page size</label>
+<select name="page_size" class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900">
+  <option value="a4">A4</option>
+  <option value="letter">Letter</option>
+  <option value="fit">Fit to image</option>
+</select>
+{% endblock %}
+{% block submit_label %}Create PDF{% endblock %}

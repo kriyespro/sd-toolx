@@ -1,0 +1,292 @@
+{% extends "layouts/marketing.jinja" %}
+{% block title %}Pricing — {{ site_name }}{% endblock %}
+{% block meta_description %}Simple INR pricing. Free forever, or upgrade to Pro/Business. 30–60% cheaper than iLovePDF. UPI, cards, net banking.{% endblock %}
+
+{% block extra_head %}
+<style>
+  @keyframes fade-up { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  .plan-card { transition: transform .2s ease, box-shadow .2s ease; }
+  .plan-card:hover { transform: translateY(-4px); }
+  .toggle-track { transition: background .2s ease; }
+  .toggle-thumb { transition: transform .2s ease; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{# ── HERO ───────────────────────────────────────────────────────────────────── #}
+<div class="pt-16 pb-12 px-4 text-center border-b border-gray-100 dark:border-gray-800 bg-gradient-to-b from-indigo-50/50 dark:from-indigo-950/20 to-transparent">
+  <div class="inline-flex items-center gap-2 bg-white dark:bg-gray-900 border border-green-100 dark:border-green-900 rounded-full px-4 py-1.5 text-sm font-medium text-green-700 dark:text-green-400 mb-5 shadow-sm">
+    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+    30–60% cheaper than iLovePDF
+  </div>
+  <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
+    Simple, honest <span style="background:linear-gradient(135deg,#6366f1,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">pricing</span>
+  </h1>
+  <p class="text-gray-500 dark:text-gray-400 text-lg max-w-lg mx-auto mb-10">
+    Start free. Upgrade when you need more. Pay in INR via UPI, cards, or net banking.
+  </p>
+
+  {# Billing toggle #}
+  <div x-data="{ annual: false }" id="pricing-root">
+    <div class="flex justify-center items-center gap-4 mb-12">
+      <span class="text-sm font-medium" :class="!annual ? 'text-gray-900 dark:text-white' : 'text-gray-400'">Monthly</span>
+      <button type="button" @click="annual = !annual"
+        class="relative w-14 h-7 rounded-full toggle-track"
+        :class="annual ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-700'"
+        aria-label="Toggle annual billing">
+        <span class="toggle-thumb absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow"
+          :class="annual ? 'translate-x-7' : 'translate-x-0'"></span>
+      </button>
+      <span class="text-sm font-medium" :class="annual ? 'text-gray-900 dark:text-white' : 'text-gray-400'">Yearly</span>
+      <span class="inline-flex items-center gap-1 text-xs font-bold bg-gradient-to-r from-green-500 to-emerald-500 text-white px-2.5 py-1 rounded-full">
+        Save 40%
+      </span>
+    </div>
+    <input type="hidden" id="billing-annual" :value="annual ? 'true' : 'false'">
+
+    {# ── Plan cards ─────────────────────────────────────────────────────────── #}
+    <div class="max-w-5xl mx-auto px-4">
+      <div class="grid md:grid-cols-4 gap-5 items-start">
+
+        {# Free #}
+        {% if free_plan %}
+        <div class="plan-card bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-7 shadow-sm text-left">
+          <div class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"/></svg>
+          </div>
+          <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">Free</p>
+          <p class="text-4xl font-extrabold text-gray-900 dark:text-white mb-1">₹0</p>
+          <p class="text-sm text-gray-400 mb-6">Forever free</p>
+          <ul class="space-y-3 text-sm text-gray-600 dark:text-gray-400 mb-8">
+            {% for item in [
+              free_plan.ops_per_day ~ " operations / day",
+              free_plan.max_file_mb ~ " MB max file size",
+              "All core tools",
+              "No watermarks",
+              "No signup needed",
+            ] %}
+            <li class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+              {{ item }}
+            </li>
+            {% endfor %}
+          </ul>
+          <a href="{{ url('tools:index') }}"
+             class="block text-center border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-semibold py-3 rounded-xl hover:border-indigo-400 hover:text-indigo-600 transition-colors text-sm">
+            Start for free
+          </a>
+        </div>
+        {% endif %}
+
+        {# Paid plans #}
+        {% for plan in plans %}
+        {% set is_pro = plan.slug == 'pro' %}
+        {% set is_biz = plan.slug == 'business' %}
+        <div class="plan-card relative text-left
+          {% if is_pro %}
+            bg-gradient-to-br from-indigo-600 via-indigo-600 to-violet-700 text-white shadow-2xl shadow-indigo-500/30 border-0 scale-105
+          {% else %}
+            bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm
+          {% endif %} rounded-2xl p-7">
+
+          {% if is_pro %}
+          <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-amber-400 text-amber-900 text-xs font-extrabold px-4 py-1.5 rounded-full shadow-lg whitespace-nowrap">
+            ⭐ MOST POPULAR
+          </div>
+          {% endif %}
+
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4
+            {% if is_pro %}bg-white/15{% elif is_biz %}bg-amber-50 dark:bg-amber-950/40{% else %}bg-blue-50 dark:bg-blue-950/40{% endif %}">
+            {% if is_biz %}
+            <svg class="w-5 h-5 {% if is_pro %}text-white{% else %}text-amber-500{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            {% else %}
+            <svg class="w-5 h-5 {% if is_pro %}text-white{% else %}text-blue-500{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            {% endif %}
+          </div>
+
+          <p class="text-xs font-semibold uppercase tracking-widest mb-2 {% if is_pro %}text-indigo-200{% else %}text-gray-400{% endif %}">{{ plan.name }}</p>
+          <p class="text-4xl font-extrabold mb-1 {% if is_pro %}text-white{% else %}text-gray-900 dark:text-white{% endif %}">
+            ₹<span x-text="annual ? '{{ plan.price_yearly_inr|int }}' : '{{ plan.price_monthly_inr|int }}'"></span>
+          </p>
+          <p class="text-sm mb-6 {% if is_pro %}text-indigo-200{% else %}text-gray-400{% endif %}"
+             x-text="annual ? '/year' : '/month'"></p>
+
+          <ul class="space-y-3 text-sm mb-8
+            {% if is_pro %}text-indigo-100{% else %}text-gray-600 dark:text-gray-400{% endif %}">
+            {% set feats = [] %}
+            {% if plan.ops_per_day < 0 %}
+              {% set _ = feats.append("Unlimited operations") %}
+            {% else %}
+              {% set _ = feats.append(plan.ops_per_day ~ " ops / day") %}
+            {% endif %}
+            {% set _ = feats.append(plan.max_file_mb ~ " MB max file size") %}
+            {% if plan.has_batch %}{% set _ = feats.append("Batch processing") %}{% endif %}
+            {% if plan.has_ai %}{% set _ = feats.append("All AI tools") %}{% endif %}
+            {% if plan.has_api %}{% set _ = feats.append("REST API access") %}{% endif %}
+            {% if plan.has_esign_unlimited %}{% set _ = feats.append("Unlimited e-signing") %}{% endif %}
+            {% if plan.has_team %}{% set _ = feats.append(plan.team_seats ~ " team seats") %}{% endif %}
+            {% for feat in feats %}
+            <li class="flex items-center gap-2">
+              <svg class="w-4 h-4 flex-shrink-0 {% if is_pro %}text-indigo-300{% else %}text-green-500{% endif %}" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              {{ feat }}
+            </li>
+            {% endfor %}
+          </ul>
+
+          {% if request.user.is_authenticated %}
+          <button type="button"
+            class="upgrade-btn w-full font-bold py-3 rounded-xl text-sm transition-all duration-200
+              {% if is_pro %}bg-white text-indigo-600 hover:bg-indigo-50{% else %}bg-indigo-600 hover:bg-indigo-500 text-white{% endif %}"
+            data-plan="{{ plan.slug }}">
+            Upgrade to {{ plan.name }}
+          </button>
+          {% else %}
+          <a href="{{ url('account_login') }}?next={{ url('billing:pricing') }}"
+             class="block text-center w-full font-bold py-3 rounded-xl text-sm transition-all duration-200
+               {% if is_pro %}bg-white text-indigo-600 hover:bg-indigo-50{% else %}bg-indigo-600 hover:bg-indigo-500 text-white{% endif %}">
+            Get {{ plan.name }}
+          </a>
+          {% endif %}
+        </div>
+        {% endfor %}
+
+      </div>
+    </div>
+    {# Checkout status msg #}
+    <p id="checkout-msg" class="text-center text-sm mt-6 hidden text-indigo-600 dark:text-indigo-400"></p>
+  </div>{# /x-data #}
+</div>
+
+{# ── FEATURE COMPARISON ─────────────────────────────────────────────────────── #}
+<section class="max-w-4xl mx-auto px-4 py-20">
+  <h2 class="text-2xl font-extrabold text-center mb-10 tracking-tight">Everything compared</h2>
+  <div class="overflow-x-auto rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
+          <th class="text-left px-6 py-4 font-semibold text-gray-600 dark:text-gray-400 w-1/3">Feature</th>
+          <th class="text-center px-4 py-4 font-semibold text-gray-600 dark:text-gray-400">Free</th>
+          <th class="text-center px-4 py-4 font-bold text-indigo-600 dark:text-indigo-400">Pro</th>
+          <th class="text-center px-4 py-4 font-semibold text-gray-600 dark:text-gray-400">Business</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-50 dark:divide-gray-800/80 bg-white dark:bg-gray-900">
+        {% set rows = [
+          ("Operations / day",        "5",          "Unlimited",    "Unlimited"),
+          ("Max file size",           "20 MB",      "200 MB",       "1 GB"),
+          ("Core PDF tools",          True,         True,           True),
+          ("Core image tools",        True,         True,           True),
+          ("No watermarks",           True,         True,           True),
+          ("Batch processing",        False,        True,           True),
+          ("AI tools (GPT-4o)",       False,        True,           True),
+          ("Unlimited e-signing",     False,        True,           True),
+          ("REST API access",         False,        False,          True),
+          ("Team seats",              "—",          "1",            "5"),
+          ("Priority processing",     False,        True,           True),
+          ("Support",                 "Community",  "Email",        "Dedicated"),
+        ] %}
+        {% for label, free_val, pro_val, biz_val in rows %}
+        <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
+          <td class="px-6 py-4 font-medium text-gray-700 dark:text-gray-300">{{ label }}</td>
+          {% for val in [free_val, pro_val, biz_val] %}
+          <td class="px-4 py-4 text-center">
+            {% if val is sameas True %}
+              <svg class="w-5 h-5 text-green-500 mx-auto" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            {% elif val is sameas False %}
+              <svg class="w-4 h-4 text-gray-300 dark:text-gray-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            {% else %}
+              <span class="{% if loop.index == 2 %}text-indigo-600 dark:text-indigo-400 font-semibold{% else %}text-gray-700 dark:text-gray-300{% endif %}">{{ val }}</span>
+            {% endif %}
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+{# ── FAQ ────────────────────────────────────────────────────────────────────── #}
+<section class="max-w-2xl mx-auto px-4 pb-20">
+  <h2 class="text-2xl font-extrabold text-center mb-10 tracking-tight">Questions</h2>
+  <div x-data="{open:null}" class="space-y-3">
+    {% set faqs = [
+      ("Is it really free?", "Yes. The free tier is permanently free with 5 operations per day and no watermarks. No credit card needed."),
+      ("Can I cancel anytime?", "Absolutely. There are no contracts or lock-ins. Cancel from your dashboard instantly."),
+      ("What payment methods do you accept?", "UPI, all major credit/debit cards, net banking, and wallets via Razorpay. 100% secure."),
+      ("Are my files private?", "All uploaded files are automatically deleted after 2 hours. We never sell or share your data."),
+      ("What happens when I hit the free limit?", "You'll see a prompt to upgrade. Your existing downloads remain accessible."),
+    ] %}
+    {% for q, a in faqs %}
+    <div class="border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden bg-white dark:bg-gray-900">
+      <button @click="open === {{ loop.index }} ? open = null : open = {{ loop.index }}"
+        class="w-full flex items-center justify-between px-6 py-4 text-left font-semibold text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-sm">
+        {{ q }}
+        <svg class="w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ml-4"
+          :class="open === {{ loop.index }} ? 'rotate-180' : ''"
+          fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      <div x-show="open === {{ loop.index }}" x-collapse class="px-6 pb-4 text-sm text-gray-500 dark:text-gray-400 leading-relaxed border-t border-gray-50 dark:border-gray-800">
+        <div class="pt-3">{{ a }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+{% if request.user.is_authenticated %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+(function(){
+  const getAnnual = () => document.getElementById('billing-annual').value === 'true';
+  document.querySelectorAll('.upgrade-btn').forEach(btn => {
+    btn.addEventListener('click', async function(){
+      const planSlug = this.dataset.plan;
+      const isAnnual = getAnnual();
+      const msg = document.getElementById('checkout-msg');
+      msg.classList.remove('hidden');
+      msg.textContent = 'Preparing checkout…';
+      const form = new FormData();
+      form.append('plan_slug', planSlug);
+      form.append('is_annual', isAnnual ? 'true' : 'false');
+      const csrf = document.querySelector('meta[name="csrf-token"]').content;
+      const res = await fetch('{{ url("billing:checkout-create") }}', {
+        method:'POST', headers:{'X-CSRFToken':csrf}, body:form
+      });
+      const data = await res.json();
+      if(data.dev_mode){ window.location.href = data.confirm_url; return; }
+      if(data.error){ msg.textContent = data.error; return; }
+      const options = {
+        key: data.key_id, amount: data.amount, currency: data.currency,
+        order_id: data.id, name:'SD-Toolx', description: planSlug + ' plan',
+        handler: async function(response){
+          const confirm = new FormData();
+          confirm.append('razorpay_order_id', response.razorpay_order_id);
+          confirm.append('razorpay_payment_id', response.razorpay_payment_id);
+          confirm.append('razorpay_signature', response.razorpay_signature);
+          confirm.append('plan_slug', planSlug);
+          confirm.append('is_annual', isAnnual ? 'true' : 'false');
+          const r = await fetch('{{ url("billing:checkout-confirm") }}', {
+            method:'POST', headers:{'X-CSRFToken':csrf}, body:confirm
+          });
+          const result = await r.json();
+          if(result.success) window.location.href = result.redirect;
+          else msg.textContent = result.error||'Payment failed';
+        },
+        prefill:{ email:'{{ request.user.email }}' },
+        theme:{ color:'#4f46e5' },
+      };
+      new Razorpay(options).open();
+      msg.classList.add('hidden');
+    });
+  });
+})();
+</script>
+{% endif %}
+
+{% endblock %}

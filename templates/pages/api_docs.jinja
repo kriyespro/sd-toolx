@@ -1,0 +1,127 @@
+{% extends "layouts/marketing.jinja" %}
+{% block title %}API Documentation — SD-Toolx{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-12">
+  <h1 class="text-4xl font-bold mb-2">SD-Toolx REST API</h1>
+  <p class="text-gray-500 mb-8">Programmatic access to all PDF and image tools. Requires Business plan.</p>
+
+  <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-4 mb-8">
+    <strong>Authentication:</strong> Pass your API key in the <code class="bg-amber-100 dark:bg-amber-800 px-1 rounded">Authorization</code> header:<br>
+    <code class="text-sm">Authorization: Bearer YOUR_API_KEY</code><br>
+    Find your API key in <a href="/dashboard/" class="text-indigo-600 underline">Dashboard → API</a>.
+  </div>
+
+  <div class="space-y-10">
+
+    <!-- List Tools -->
+    <section>
+      <h2 class="text-2xl font-semibold mb-3">GET /api/v1/tools/</h2>
+      <p class="text-gray-600 dark:text-gray-400 mb-3">List all available tools.</p>
+      <pre class="bg-gray-900 text-green-300 rounded-xl p-4 text-sm overflow-x-auto">curl -H "Authorization: Bearer YOUR_API_KEY" \
+  https://sdtoolx.com/api/v1/tools/</pre>
+      <pre class="bg-gray-800 text-gray-200 rounded-xl p-4 text-sm mt-2 overflow-x-auto">{
+  "tools": [
+    { "slug": "compress-pdf", "name": "Compress PDF", "category": "pdf", ... },
+    ...
+  ],
+  "count": 31
+}</pre>
+    </section>
+
+    <!-- Submit Job -->
+    <section>
+      <h2 class="text-2xl font-semibold mb-3">POST /api/v1/jobs/</h2>
+      <p class="text-gray-600 dark:text-gray-400 mb-3">Submit a processing job. Upload files as multipart form data.</p>
+      <pre class="bg-gray-900 text-green-300 rounded-xl p-4 text-sm overflow-x-auto">curl -X POST \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -F "tool=compress-pdf" \
+  -F "files=@document.pdf" \
+  https://sdtoolx.com/api/v1/jobs/</pre>
+      <pre class="bg-gray-800 text-gray-200 rounded-xl p-4 text-sm mt-2 overflow-x-auto">{
+  "id": 12345,
+  "tool": "compress-pdf",
+  "status": "pending",
+  "created_at": "2026-05-17T10:00:00Z"
+}</pre>
+    </section>
+
+    <!-- Poll Status -->
+    <section>
+      <h2 class="text-2xl font-semibold mb-3">GET /api/v1/jobs/&lt;id&gt;/</h2>
+      <p class="text-gray-600 dark:text-gray-400 mb-3">Poll job status. Poll every 1–2 seconds until <code>status</code> is <code>done</code> or <code>failed</code>.</p>
+      <pre class="bg-gray-900 text-green-300 rounded-xl p-4 text-sm overflow-x-auto">curl -H "Authorization: Bearer YOUR_API_KEY" \
+  https://sdtoolx.com/api/v1/jobs/12345/</pre>
+      <pre class="bg-gray-800 text-gray-200 rounded-xl p-4 text-sm mt-2 overflow-x-auto">{
+  "id": 12345,
+  "tool": "compress-pdf",
+  "status": "done",
+  "download_url": "https://sdtoolx.com/api/v1/jobs/12345/download/",
+  "stats": { "saved_pct": 74, "original_bytes": 1048576, "output_bytes": 272629 }
+}</pre>
+    </section>
+
+    <!-- Download -->
+    <section>
+      <h2 class="text-2xl font-semibold mb-3">GET /api/v1/jobs/&lt;id&gt;/download/</h2>
+      <p class="text-gray-600 dark:text-gray-400 mb-3">Download the processed file. Available for 2 hours after completion.</p>
+      <pre class="bg-gray-900 text-green-300 rounded-xl p-4 text-sm overflow-x-auto">curl -H "Authorization: Bearer YOUR_API_KEY" \
+  -o output.pdf \
+  https://sdtoolx.com/api/v1/jobs/12345/download/</pre>
+    </section>
+
+    <!-- Python example -->
+    <section>
+      <h2 class="text-2xl font-semibold mb-3">Python Example</h2>
+      <pre class="bg-gray-900 text-green-300 rounded-xl p-4 text-sm overflow-x-auto">import requests, time
+
+API_KEY = "your-api-key"
+BASE = "https://sdtoolx.com/api/v1"
+headers = {"Authorization": f"Bearer {API_KEY}"}
+
+# Submit
+with open("document.pdf", "rb") as f:
+    resp = requests.post(f"{BASE}/jobs/", headers=headers,
+                         data={"tool": "compress-pdf"}, files={"files": f})
+job = resp.json()
+job_id = job["id"]
+
+# Poll
+while True:
+    status = requests.get(f"{BASE}/jobs/{job_id}/", headers=headers).json()
+    if status["status"] == "done":
+        break
+    elif status["status"] == "failed":
+        raise Exception(status.get("error"))
+    time.sleep(1.5)
+
+# Download
+result = requests.get(status["download_url"], headers=headers)
+with open("compressed.pdf", "wb") as f:
+    f.write(result.content)</pre>
+    </section>
+
+    <!-- Status codes -->
+    <section>
+      <h2 class="text-2xl font-semibold mb-3">Status codes</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm border-collapse">
+          <thead>
+            <tr class="bg-gray-100 dark:bg-gray-800">
+              <th class="text-left p-3 border border-gray-200 dark:border-gray-700">Status</th>
+              <th class="text-left p-3 border border-gray-200 dark:border-gray-700">Meaning</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="p-3 border border-gray-200 dark:border-gray-700"><code>pending</code></td><td class="p-3 border border-gray-200 dark:border-gray-700">In queue</td></tr>
+            <tr><td class="p-3 border border-gray-200 dark:border-gray-700"><code>processing</code></td><td class="p-3 border border-gray-200 dark:border-gray-700">Running now</td></tr>
+            <tr><td class="p-3 border border-gray-200 dark:border-gray-700"><code>done</code></td><td class="p-3 border border-gray-200 dark:border-gray-700">Ready to download</td></tr>
+            <tr><td class="p-3 border border-gray-200 dark:border-gray-700"><code>failed</code></td><td class="p-3 border border-gray-200 dark:border-gray-700">Error — check <code>error</code> field</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+</div>
+{% endblock %}

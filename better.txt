@@ -1,0 +1,576 @@
+================================================================
+SD-TOOLX — FINAL PRODUCT ROADMAP
+"Better Than iLovePDF in Every Way"
+================================================================
+Written: May 16, 2026
+Goal: Most useful, easiest, most popular document tool in India
+================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WHY iLOVEPDF CAN BE BEATEN (Their Weaknesses = Our Advantages)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. Their UI is cluttered with ads on free tier      → We: zero popup ads, ever
+  2. Aggressive watermarks on basic free tools        → We: no watermark on core tools
+  3. Slow processing on large files                   → We: optimized async Celery pipeline
+  4. English only (no Hindi, no regional)             → We: Hindi-first + regional support
+  5. No AI features at all                            → We: AI tools as core differentiator
+  6. No file preview before download                  → We: real-time preview on every tool
+  7. No cloud import (Drive, Dropbox)                 → We: import from anywhere
+  8. No mobile app / poor mobile UX                   → We: PWA + mobile-first design
+  9. Harsh free tier limits (5MB, 2 files)            → We: more generous free tier
+  10. No dark mode                                    → We: dark mode day 1
+  11. No recent files history                         → We: 24-hour file history
+  12. No WhatsApp/India-specific integrations         → We: WhatsApp share built-in
+  13. No e-signature on free tier                     → We: basic e-sign is free
+  14. No team/collaboration features                  → We: team workspaces (Business)
+  15. API is expensive and complex                    → We: simple, affordable API
+
+================================================================
+SECTION 1 — COMPLETE FEATURE LIST (FINAL ROADMAP)
+================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MODULE 1: PDF TOOLS (Core — iLovePDF territory, but better)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  [ FREE ] Compress PDF
+           → No watermark. No signup required.
+           → Show compression % saved ("Reduced by 74%!")
+           → Backend: Ghostscript (max compression quality selector)
+
+  [ FREE ] Merge PDF
+           → Drag-to-reorder pages visually before merging
+           → Thumbnail preview of each file
+           → Free: 3 files | Pro: unlimited
+
+  [ FREE ] Split PDF
+           → Split by page range, every N pages, or by bookmarks
+           → Visual page selector (click pages to extract)
+
+  [ FREE ] Rotate PDF
+           → Per-page rotation with visual preview
+           → Free, always. iLovePDF charges for this.
+
+  [ FREE ] PDF to JPG / PNG
+           → Free: first page | Pro: all pages + ZIP download
+           → DPI selector (72 / 150 / 300)
+
+  [ FREE ] JPG / PNG / WebP → PDF
+           → Multi-image upload, drag to reorder
+           → Page size selector (A4, Letter, custom)
+
+  [ FREE ] Word (.docx) → PDF
+           → LibreOffice headless. No fonts stripped.
+
+  [ PRO  ] PDF → Word (.docx)
+           → PyMuPDF + python-docx. Tables preserved.
+           → Free: 1 page preview | Pro: full document
+
+  [ PRO  ] PDF → Excel (.xlsx)
+           → Table detection + extraction
+           → openpyxl backend
+
+  [ FREE ] Excel (.xlsx) → PDF
+           → LibreOffice conversion, all sheets
+
+  [ FREE ] PowerPoint (.pptx) → PDF
+           → LibreOffice conversion
+
+  [ PRO  ] PDF → PowerPoint (.pptx)
+           → Slide-per-page extraction
+
+  [ FREE ] Protect PDF (add password)
+           → AES-256 encryption via PyMuPDF
+
+  [ PRO  ] Unlock PDF (remove password)
+           → Requires knowing current password (legal)
+
+  [ PRO  ] Watermark PDF
+           → Text or image watermark
+           → Opacity, position, rotation control
+
+  [ FREE ] Reorder PDF Pages
+           → Full visual drag-and-drop page manager
+           → Thumbnail grid view of all pages
+
+  [ FREE ] Delete PDF Pages
+           → Click to select pages to remove
+           → Visual thumbnail selector
+
+  [ PRO  ] Extract PDF Pages
+           → Save specific pages as a new PDF
+
+  [ PRO  ] OCR — Scanned PDF / Image → Searchable PDF or Text
+           → Tesseract backend (English + Hindi support)
+           → Output: searchable PDF or .txt file
+
+  [ PRO  ] Repair PDF
+           → Fix corrupted or broken PDF files
+
+  [ PRO  ] Flatten PDF
+           → Remove form fields, flatten annotations
+
+  [ PRO  ] PDF/A Converter
+           → Archive-compliant format for legal docs
+
+  [ FREE ] Add Page Numbers to PDF
+           → Position, font, style selector
+
+  [ PRO  ] Crop PDF Pages
+           → Margin crop tool
+
+  [ PRO  ] Redact PDF
+           → Black out sensitive text permanently
+
+  [ PRO  ] Compare PDF
+           → Side-by-side diff of two PDF versions
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MODULE 2: IMAGE TOOLS (iLovePDF doesn't do this well)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  [ FREE ] Compress Image
+           → JPG, PNG, WebP, GIF
+           → Live quality slider with before/after preview
+           → Show file size reduction in real-time
+
+  [ FREE ] Resize Image
+           → By pixels or percentage
+           → Lock aspect ratio toggle
+           → Preset sizes: 1080p, 4K, thumbnail, passport photo
+
+  [ FREE ] Convert Image Format
+           → JPG ↔ PNG ↔ WebP ↔ GIF ↔ BMP ↔ AVIF
+           → Batch convert (Pro)
+
+  [ FREE ] Crop Image
+           → Free-form or ratio presets (1:1, 16:9, 4:3)
+           → Visual crop editor in browser
+
+  [ FREE ] Rotate / Flip Image
+           → 90° steps + custom angle
+           → Horizontal / vertical flip
+
+  [ FREE ] HEIC → JPG
+           → Convert iPhone photos instantly
+           → India: huge demand from iPhone users
+
+  [ FREE ] Add Watermark to Image
+           → Text or logo overlay
+           → Opacity + position
+
+  [ PRO  ] Remove Background (AI)
+           → AI-powered, clean edges
+           → Output: PNG with transparency
+           → Replaces remove.bg for Indian users
+
+  [ PRO  ] Upscale Image (AI 2x / 4x)
+           → Real-ESRGAN model
+           → Huge demand from photographers, students
+
+  [ PRO  ] Passport / ID Photo Generator
+           → Resize + background color to standard sizes
+           → India: visa, Aadhaar, PAN card sizes pre-set
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MODULE 3: AI TOOLS (Our Biggest Differentiator — iLovePDF has ZERO AI)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  [ PRO  ] AI PDF Summarizer
+           → Upload PDF → get 5 bullet-point summary
+           → OpenAI / Gemini API backend
+           → "Summarize this 100-page report in 30 seconds"
+
+  [ PRO  ] Chat with PDF (AI Q&A)
+           → Ask questions about your document
+           → "What are the payment terms in this contract?"
+           → RAG pipeline: PyMuPDF extract → vector store → LLM
+
+  [ PRO  ] AI Extract Key Data
+           → Extract: names, dates, amounts, addresses from PDF
+           → Output: structured JSON or Excel
+           → Use case: invoices, contracts, forms
+
+  [ PRO  ] AI Translate PDF
+           → Translate PDF to Hindi, Tamil, Telugu, Bengali, etc.
+           → Preserves formatting
+           → Massive India demand (govt docs, English content)
+
+  [ FREE ] AI Extract Text from Image (OCR lite)
+           → Snap a photo of handwritten or printed text
+           → Extract text instantly (Tesseract / Google Vision)
+           → Free: 500 chars | Pro: unlimited
+
+  [ PRO  ] AI Grammar & Spell Check on PDF
+           → Find errors in uploaded documents
+           → Export corrected version
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MODULE 4: E-SIGN & FORMS (iLovePDF charges ₹800+/mo for this)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  [ FREE ] Sign PDF (E-Signature)
+           → Draw, type, or upload signature image
+           → Place on any page, any position
+           → Free basic signing: 3 docs/month
+
+  [ PRO  ] Request Signatures
+           → Send PDF to others for signing via email link
+           → Track status: sent / viewed / signed
+
+  [ PRO  ] Fill PDF Forms
+           → Fill interactive PDF forms online
+           → Save filled form as PDF
+
+  [ PRO  ] Create PDF Form
+           → Drag-and-drop form builder
+           → Add fields: text, checkbox, signature, date
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MODULE 5: UTILITY TOOLS (Bonus traffic generators)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  [ FREE ] QR Code Generator
+           → URL, text, WhatsApp, UPI, WiFi QR codes
+           → Custom colors + logo in center (Pro)
+           → India: UPI QR = massive demand
+
+  [ FREE ] QR Code Scanner / Reader
+           → Upload QR image → extract content
+
+  [ FREE ] Barcode Generator
+           → EAN-13, Code-128, QR
+           → Download as PNG or SVG
+
+  [ FREE ] Word Counter
+           → Paste or upload file
+           → Count: words, characters, sentences, paragraphs
+           → Reading time estimator
+
+  [ FREE ] Text Case Converter
+           → UPPER → lower → Title → camelCase → snake_case
+
+  [ FREE ] JSON Formatter & Validator
+           → Pretty-print, minify, validate JSON
+
+  [ FREE ] CSV → Excel / Excel → CSV
+           → Simple conversion, no backend needed (browser-side)
+
+  [ FREE ] Password Generator
+           → Strong random password generator
+           → Length, symbols, numbers selector
+
+  [ FREE ] URL Shortener (branded)
+           → sdtlx.in/abc short links
+           → Tracked clicks (Pro)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MODULE 6: UX FEATURES (Why users stay & tell friends)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  [ ALL  ] Dark Mode
+           → System preference auto-detect + manual toggle
+           → iLovePDF has NO dark mode. Instant win.
+
+  [ ALL  ] Real-Time Preview Before Download
+           → See output thumbnail before clicking download
+           → "Is this what you wanted?" moment of delight
+
+  [ ALL  ] Drag & Drop Everywhere
+           → Files, pages, images — all draggable
+           → Drop file anywhere on the page (not just upload box)
+
+  [ ALL  ] Live Progress Indicator
+           → Real-time: "Compressing... 67% done"
+           → HTMX polling every 500ms from Celery task
+
+  [ FREE ] 24-Hour File History
+           → Last 5 processed files available for re-download
+           → No account needed (cookie-based)
+
+  [ USER ] 30-Day File History
+           → Signed-in users: all jobs for 30 days
+           → Re-process or re-download anytime
+
+  [ ALL  ] Mobile-First + PWA
+           → Installable on Android/iPhone homescreen
+           → Offline-ready for UI (file processing still online)
+           → Works perfectly on 4G India connection
+
+  [ ALL  ] WhatsApp Share Button
+           → After every download: "Share via WhatsApp"
+           → India-specific. Enormous viral potential.
+
+  [ ALL  ] No Popup Ads. Ever.
+           → Soft upgrade prompts only (inline, non-intrusive)
+           → This alone will make users love us vs iLovePDF
+
+  [ ALL  ] File Drop From Google Drive / Dropbox
+           → Import button next to upload
+           → Save back to Drive (Pro)
+
+  [ ALL  ] Keyboard Shortcuts
+           → Ctrl+U = upload, Ctrl+D = download, Ctrl+R = reset
+           → Power user retention
+
+  [ ALL  ] Multi-language UI
+           → English (default)
+           → Hindi (हिंदी) — Phase 2
+           → Tamil, Telugu, Bengali — Phase 3
+
+  [ ALL  ] Accessibility (WCAG 2.1 AA)
+           → Screen reader support
+           → High contrast mode
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MODULE 7: TEAM & COLLABORATION (Business Plan)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  [ BIZ  ] Team Workspace
+           → Shared file library for teams
+           → Up to 10 members on Business plan
+
+  [ BIZ  ] Shared File History
+           → All team members see processed files
+           → Role-based: Admin, Member, Viewer
+
+  [ BIZ  ] Team Usage Analytics Dashboard
+           → Who processed what, when
+           → Monthly usage report export
+
+  [ BIZ  ] Custom Branding (White-label)
+           → Replace SD-Toolx logo with client logo
+           → Custom domain support
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MODULE 8: API & DEVELOPER TOOLS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  [ API  ] REST API — All Tools
+           → POST /api/v1/tools/{tool-slug}/
+           → Async job-based: submit → poll status → download
+           → Simpler and cheaper than iLovePDF API
+
+  [ API  ] Webhooks
+           → GET notified when job completes
+           → POST to your URL with download link
+
+  [ API  ] SDKs
+           → Python SDK (pip install sdtoolx)
+           → Node.js SDK (npm install sdtoolx)
+
+  [ API  ] API Playground (in browser)
+           → Test any API endpoint without code
+           → No Swagger bloat — clean custom UI
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MODULE 9: GROWTH & MONETIZATION FEATURES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  [ INFRA ] Freemium Limits (Smart, Not Brutal)
+            → Free: 5 ops/day, 20MB, 3 files, no watermark on core tools
+            → This is MORE generous than iLovePDF = steal their users
+            → Upgrade wall shows only when limit is hit, never before
+
+  [ INFRA ] Referral Program
+            → Share link → friend gets 7 days Pro free
+            → You get 7 days Pro free when they sign up
+            → Viral loop with zero cost
+
+  [ INFRA ] 7-Day Free Trial on Signup
+            → No credit card required
+            → Shows value before asking for money
+
+  [ INFRA ] Usage Habit Builder
+            → Dashboard: "You've processed 12 files this week"
+            → "Upgrade to Pro to process faster with no limits"
+            → Creates dependency before the paywall
+
+  [ INFRA ] Affiliate Program
+            → 30% recurring commission
+            → Auto-payout via UPI (India-first)
+            → Target: tech YouTubers, college Discord servers
+
+  [ INFRA ] Student Discount
+            → 50% off Pro with .edu or college email
+            → India: 40 million college students segment
+
+  [ INFRA ] Chrome Extension
+            → Right-click any PDF link → SD-Toolx menu
+            → Send to compress, merge, sign instantly
+            → iLovePDF has a weak extension — ours will be better
+
+================================================================
+SECTION 2 — FINAL TOOL COUNT & PRIORITY
+================================================================
+
+  PRIORITY 1 — MVP LAUNCH (Build first, generates 80% of traffic)
+  ────────────────────────────────────────────────────────────────
+  01. Compress PDF          ← #1 searched PDF tool globally
+  02. Merge PDF             ← #2 most searched
+  03. Split PDF
+  04. Compress Image        ← iLovePDF's weak spot
+  05. JPG → PDF
+  06. PDF → JPG
+  07. Word → PDF
+  08. Rotate PDF
+  09. Sign PDF (basic)      ← iLovePDF charges. We give free.
+  10. QR Code Generator     ← Bonus high-traffic tool
+
+  PRIORITY 2 — GROWTH PHASE (Week 3–6, adds premium appeal)
+  ────────────────────────────────────────────────────────────────
+  11. PDF → Word (Pro)
+  12. Reorder PDF Pages
+  13. Delete PDF Pages
+  14. Protect PDF
+  15. Unlock PDF
+  16. Resize Image
+  17. Convert Image Format
+  18. HEIC → JPG
+  19. Remove Background (AI) ← Standalone hit, drives signups
+  20. AI PDF Summarizer      ← Nobody else has this free
+
+  PRIORITY 3 — SCALE PHASE (Month 2–4, business revenue)
+  ────────────────────────────────────────────────────────────────
+  21. Chat with PDF (AI)
+  22. AI Translate PDF
+  23. OCR — Scanned PDF → Text
+  24. Excel → PDF / PDF → Excel
+  25. PPT → PDF / PDF → PPT
+  26. Watermark PDF
+  27. Fill PDF Forms
+  28. Request Signatures
+  29. AI Extract Key Data
+  30. Upscale Image (AI)
+  31. Repair PDF
+  32. Compare PDF
+  33. Redact PDF
+  34. Word Counter + Text Tools
+  35. URL Shortener
+
+  PRIORITY 4 — DOMINATION (Month 4+, moat features)
+  ────────────────────────────────────────────────────────────────
+  36. Create PDF Form Builder
+  37. AI Grammar Check PDF
+  38. PDF/A Converter
+  39. Passport Photo Generator
+  40. Team Workspaces
+  41. API + Webhooks + SDKs
+  42. Chrome Extension
+  43. Hindi UI
+  44. White-label / Enterprise
+
+  TOTAL: 44 tools across 8 modules
+
+================================================================
+SECTION 3 — WHAT MAKES US POPULAR (Virality Plan)
+================================================================
+
+  1. WORD OF MOUTH
+     "This is cleaner than iLovePDF" → every user thinks this
+     → Zero popup ads = instant respect and sharing
+
+  2. WHATSAPP VIRALITY (India-specific)
+     → Share result via WhatsApp built-in button
+     → "I used this site, it's amazing" forwarded in groups
+     → Especially in student WhatsApp groups
+
+  3. PRODUCTHUNT LAUNCH
+     → Target #1 Product of the Day
+     → 5,000 upvotes = 50,000 new users in 24 hours
+
+  4. SEO DOMINANCE
+     → 44 tools = 44 high-traffic SEO landing pages
+     → Each page targets exact-match keywords
+     → Blog: 2 posts/week ("How to compress PDF on iPhone India")
+     → Hindi content = untapped SEO goldmine
+
+  5. AI TOOLS AS VIRAL HOOKS
+     → "Chat with your PDF" = shareable moment
+     → "Remove background in 1 click" = people post on social
+     → These features get covered by tech blogs/YouTube
+
+  6. STUDENT COMMUNITIES
+     → 50% discount for students = fierce loyalty
+     → Spreads in college WhatsApp groups, Discord servers
+     → Students process: assignments, notes, mark sheets
+
+  7. CHROME EXTENSION
+     → Passive discovery on every browser
+     → "Seen in browser" = trust signal
+
+================================================================
+SECTION 4 — PRICING (Final)
+================================================================
+
+  FREE          → 5 ops/day | 20MB | 3 files | Core tools | No watermark
+  BASIC ₹99/mo  → 20 ops/day | 50MB | 5 files | All PDF tools
+  PRO ₹249/mo   → Unlimited ops | 200MB | Batch | AI tools | Sign
+  BUSINESS ₹799/mo → API | 1GB | Team 5 seats | Priority queue | White-label
+
+  Annual plans: 40% off (drives commitment, reduces churn)
+  Student discount: 50% off Pro with verified .edu or college email
+  Startup discount: 30% off Business for startups < 2 years old
+
+  NOTE: Pricing is 30–60% below iLovePDF for same features.
+  This is intentional. India market. Volume over margin.
+
+================================================================
+SECTION 5 — TECH CHOICES THAT MAKE US BETTER
+================================================================
+
+  Processing Engine:
+    → PyMuPDF (faster than pdf-lib for Python)
+    → Ghostscript (best-in-class PDF compression)
+    → LibreOffice headless (Office conversions)
+    → Tesseract 5 (OCR, Hindi supported)
+    → Pillow + Wand (image processing)
+    → Real-ESRGAN (AI upscaling, runs on CPU)
+    → OpenAI GPT-4o mini / Gemini Flash (AI tools, cheap)
+
+  Storage & Speed:
+    → Cloudflare R2 (zero egress fees — cheaper than S3)
+    → Files auto-deleted after 2 hours
+    → Redis for Celery queuing + Django caching
+    → Cloudflare CDN for static assets
+    → Priority queue for Pro users (separate Celery worker)
+
+  Frontend Speed:
+    → HTMX (no React bloat, instant feel)
+    → Tailwind CSS (tiny CSS bundle)
+    → Alpine.js only for dropdowns/modals
+    → PWA caching for repeat visits
+    → Lighthouse score target: 95+
+
+================================================================
+BOTTOM LINE — THE WINNING FORMULA
+================================================================
+
+  iLovePDF built a $20–40M/year business with:
+    - Basic tools only
+    - No AI
+    - No dark mode
+    - Aggressive ads
+    - Expensive subscription
+    - English only
+
+  We will beat them with:
+    + AI tools (Summarize, Chat, Translate, Remove BG)
+    + Dark mode + clean UI (zero popup ads)
+    + More tools (44 vs their 25)
+    + 30–60% cheaper pricing
+    + Hindi + regional language support
+    + India-native payments (UPI via Razorpay)
+    + Better mobile/PWA experience
+    + Free e-signature (they charge ₹800+/mo)
+    + WhatsApp integration (India = WhatsApp country)
+    + Chrome extension that actually works
+
+  The result: Users switch. Users stay. Users pay. Users refer.
+  That is how SD-Toolx becomes a ₹1 Crore/month machine.
+
+================================================================
+THIS IS THE FINAL DEVELOPMENT ROADMAP.
+Priority 1 first. Ship fast. Iterate weekly.
+================================================================

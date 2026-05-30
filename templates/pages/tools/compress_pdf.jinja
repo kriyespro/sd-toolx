@@ -1,0 +1,13 @@
+{% extends "pages/tools/_tool_base.jinja" %}
+{% block tool_form %}
+{% set accept = ".pdf" %}
+{% include "components/upload_zone.jinja" %}
+<label class="block text-sm font-medium mt-4">Quality</label>
+<select name="quality" class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900">
+  <option value="high">High quality</option>
+  <option value="medium" selected>Balanced</option>
+  <option value="low">Maximum compression</option>
+</select>
+<p class="text-xs text-gray-500 mt-2">Scan and photo PDFs compress the most. Use <strong>Smallest file</strong> for maximum size reduction.</p>
+{% endblock %}
+{% block submit_label %}Compress PDF{% endblock %}

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" x-data="{ dark: localStorage.getItem('dark') === 'true' }" :class="{ 'dark': dark }">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="{% block meta_description %}{{ site_tagline }}{% endblock %}">
+  <meta name="csrf-token" content="{{ get_csrf(request) }}">
+  <title>{% block title %}{{ site_name }}{% endblock %}</title>
+  <link rel="manifest" href="{{ static('manifest.json') }}">
+  <meta name="theme-color" content="#4f46e5">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' }
+  </script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+  <style>.htmx-indicator{display:none}.htmx-request .htmx-indicator{display:inline}.htmx-request .htmx-hide{display:none}</style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100 antialiased">
+  {% block body %}{% endblock %}
+  <script>
+    document.body.addEventListener('htmx:configRequest', function(evt) {
+      var token = document.querySelector('meta[name="csrf-token"]');
+      if (token) evt.detail.headers['X-CSRFToken'] = token.content;
+    });
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('{{ static("sw.js") }}').catch(() => {});
+    }
+  </script>
+</body>
+</html>

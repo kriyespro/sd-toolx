@@ -1,0 +1,11 @@
+{% extends "layouts/marketing.jinja" %}
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-10">
+  <div id="tool-social-proof" class="text-center text-sm text-gray-500 mb-6"
+    hx-get="{{ url('growth:stats') }}"
+    hx-trigger="load, every 60s"
+    hx-swap="innerHTML">
+  </div>
+  {% block tool_content %}{% endblock %}
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "pages/tools/_tool_base.jinja" %}
+{% block tool_form %}
+{% set accept = ".pdf,.jpg,.jpeg,.png,.tiff,.tif,.bmp" %}
+{% include "components/upload_zone.jinja" %}
+<div class="mt-4">
+  <label class="block text-sm font-medium">Language</label>
+  <select name="lang" class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 mt-1">
+    <option value="eng" selected>English</option>
+    <option value="hin">Hindi (हिंदी)</option>
+    <option value="tam">Tamil (தமிழ்)</option>
+    <option value="tel">Telugu (తెలుగు)</option>
+    <option value="ben">Bengali (বাংলা)</option>
+    <option value="mar">Marathi (मराठी)</option>
+    <option value="deu">German</option>
+    <option value="fra">French</option>
+    <option value="spa">Spanish</option>
+    <option value="chi_sim">Chinese (Simplified)</option>
+  </select>
+  <p class="text-xs text-gray-500 mt-1">Output is a .txt file with extracted text.</p>
+</div>
+{% endblock %}
+{% block submit_label %}Extract Text{% endblock %}

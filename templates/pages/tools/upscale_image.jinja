@@ -1,0 +1,20 @@
+{% extends "pages/tools/_tool_base.jinja" %}
+{% block tool_form %}
+{% set accept = ".jpg,.jpeg,.png,.webp,.bmp" %}
+{% include "components/upload_zone.jinja" %}
+<div class="mt-4">
+  <label class="block text-sm font-medium">Scale factor</label>
+  <div class="flex gap-3 mt-1">
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="radio" name="scale" value="2" checked class="accent-indigo-600">
+      <span class="text-sm">2× (double size)</span>
+    </label>
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="radio" name="scale" value="4" class="accent-indigo-600">
+      <span class="text-sm">4× (quadruple size)</span>
+    </label>
+  </div>
+  <p class="text-xs text-gray-500 mt-2">Uses high-quality Lanczos resampling. Max output: 8000×8000px.</p>
+</div>
+{% endblock %}
+{% block submit_label %}Upscale Image{% endblock %}
